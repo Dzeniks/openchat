@@ -14,7 +14,7 @@
         top: 0;
         left: 0;
         width: 100%;
-        padding: 16px 20px 20px 20px;
+        padding: 0px 32px;
         display: flex;
         align-items: center;
         transition: 0.3s ease-out;
@@ -25,12 +25,11 @@
         font-size: 24px;
         font-weight: 500;
         color: black;
-
     }
 
     @media (min-width: 640px) {
         nav {
-            padding: 16x;
+            padding: 0px 16x;
         }
     }
 
