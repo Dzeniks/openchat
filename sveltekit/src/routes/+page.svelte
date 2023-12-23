@@ -2,7 +2,8 @@
     import {onMount} from 'svelte';
 
     onMount(() => {
-        console.log('The component has been mounted');
+        
+
     });
 
 </script>
