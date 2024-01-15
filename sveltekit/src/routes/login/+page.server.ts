@@ -1,4 +1,5 @@
 import type { Actions } from './$types';
+import type { AuthResponse, AuthErrorResponse } from '$lib/auth/auth';
 import { login, register } from '$lib/auth/auth';
 import { redirect } from '@sveltejs/kit';
 
@@ -10,20 +11,24 @@ export const actions = {
             if (!email || !password) {
                 return;
             }
-            const data = await login(email, password);
+            const data: AuthResponse | AuthErrorResponse | undefined = await login(email, password);
             if (data) {
-                cookies.set('accessToken', data.accessToken, {
-                    httpOnly: true,
-                    maxAge: 1,
-                    path: '/',
-                });
-
-                cookies.set('refreshToken', data.refreshToken, {
-                    httpOnly: true,
-                    maxAge: 3600 * 24 * 30,
-                    path: '/',
-                });
-
+                if ('accessToken' in data && 'refreshToken' in data){
+                    cookies.set('accessToken', data.accessToken, {
+                        httpOnly: true,
+                        maxAge: 3600,
+                        path: '/',
+                    });
+    
+                    cookies.set('refreshToken', data.refreshToken, {
+                        httpOnly: true,
+                        maxAge: 3600 * 24 * 30,
+                        path: '/',
+                    });
+                }
+                if ('error' in data){
+                    throw redirect(302, `/login?error=${data.error}&message=${data.message}`)   
+                }
             }
             throw redirect(302, '/chat')
     },
@@ -34,20 +39,23 @@ export const actions = {
             if (!email || !password) {
                 return;
             }
-            const data = await register(email, password);
+            const data : AuthResponse | AuthErrorResponse | undefined  = await register(email, password);
             if (data) {
-                cookies.set('accessToken', data.accessToken, {
-                    httpOnly: true,
-                    maxAge: 1,
-                    path: '/',
-                });
-
-                cookies.set('refreshToken', data.refreshToken, {
-                    httpOnly: true,
-                    maxAge: 3600 * 24 * 30,
-                    path: '/',
-                });
-
+                if ('accessToken' in data && 'refreshToken' in data){
+                    cookies.set('accessToken', data.accessToken, {
+                        httpOnly: true,
+                        maxAge: 1,
+                        path: '/',
+                    });
+                    cookies.set('refreshToken', data.refreshToken, {
+                        httpOnly: true,
+                        maxAge: 3600 * 24 * 30,
+                        path: '/',
+                    });
+                }
+                if ('error' in data){
+                    console.log(data.error);
+                }
             }
             throw redirect(302, '/chat')
         },

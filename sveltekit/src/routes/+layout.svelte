@@ -17,7 +17,7 @@
 <main>
     <slot/>
 </main>
-<Footer/>
+<!-- <Footer/> -->
 </body>
 
 <style>

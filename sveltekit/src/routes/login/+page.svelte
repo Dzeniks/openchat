@@ -2,14 +2,24 @@
     import {onMount} from 'svelte';
 
     const refreshToken = null;
-    
+
+
+    onMount(() => {
+        console.log("onMount");
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        
+        // Access individual parameters
+        const error = urlSearchParams.get('error');
+        const message = urlSearchParams.get('message');
+
+        if (error && message) {
+            alert(error + ": " +message);
+        }
+    });
     let email = "";
     let password = "";
     let rePassword = "";
 
-    onMount(() => {
-        console.log("onMount");
-    });
 
     let IsLogin = true;
 

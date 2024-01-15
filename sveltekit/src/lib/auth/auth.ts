@@ -3,6 +3,11 @@ export type AuthResponse = {
     refreshToken: string;
 }
 
+export type AuthErrorResponse = {
+    error: string;
+    message: string;
+}
+
 export async function login(email: string, password: string) {
     try {
         const response = await fetch('http://localhost:8080/api/auth/login', {
@@ -19,9 +24,7 @@ export async function login(email: string, password: string) {
     } catch(error){
         // Handle any errors here
         console.error(error);
-        
-        // Return an error message or throw an exception
-        throw new Error('Failed to login');
+        return {error: error, message: "Failed to login"} as AuthErrorResponse;
     }
 }
 
@@ -41,9 +44,10 @@ export async function register(email: string, password: string) {
     } catch(error){
         // Handle any errors here
         console.error(error);
+        return {error: error, message: "Failed to register"} as AuthErrorResponse;
         
         // Return an error message or throw an exception
-        throw new Error('Failed to register');
+        // throw new Error('Failed to register');
     }
 }
 
@@ -68,8 +72,8 @@ export async function refresh(refreshToken: string) {
     } catch (error) {
         // Handle any errors here
         console.error(error);
-        
+        return {error: error, message: "Failed to refresh token"} as AuthErrorResponse;
         // Return an error message or throw an exception
-        throw new Error('Failed to refresh token');
+        // throw new Error('Failed to refresh token');
     }
 }
