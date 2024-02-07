@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"server-go/routes/chat"
 
 	"server-go/routes/auth"
 )
@@ -17,5 +18,6 @@ func InitApiRouter(r *gin.Engine) {
 	}
 
 	auth.InitAuth(api)
+	chat.InitChat(api)
 
 }

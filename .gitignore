@@ -2,3 +2,14 @@
 /node_modules
 .idea
 log.txt
+
+sveltekit/.DS_Store
+sveltekit/node_modules
+sveltekit/build
+sveltekit/.svelte-kit
+sveltekit/package
+.env
+.env.*
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
