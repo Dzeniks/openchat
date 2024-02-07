@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"log"
 	"regexp"
 	"server-go/lib/databaseService"
 	"server-go/lib/jwtService"
@@ -15,15 +14,16 @@ import (
 
 // RegisterRoutes registers routes for the auth package.
 func InitAuth(r *gin.RouterGroup) {
-	auth := r.Group("/auth")
+	authGroup := r.Group("/auth")
 	{
-		auth.POST("/login", login)
-		auth.POST("/register", Register)
-		auth.POST("/refresh", Refresh)
+		authGroup.POST("/", auth)
+		authGroup.POST("/login", login)
+		authGroup.POST("/register", register)
+		authGroup.POST("/refresh", refresh)
 	}
 }
 
-type AuthRequest struct {
+type EmailRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -61,11 +61,11 @@ func isValidPassword(password string) bool {
 	return true
 }
 
-func Register(c *gin.Context) {
+func register(c *gin.Context) {
 	// Define a struct to hold the request body
 
 	// Bind the request body to the RegisterRequest struct
-	var req AuthRequest
+	var req EmailRequest
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": "Invalid request body"})
 		return
@@ -123,11 +123,23 @@ func Register(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "Database error"})
 		return
 	}
-	c.JSON(200, gin.H{"message": "User created"})
+	// c.JSON(200, gin.H{"message": "User created"})
+	// login after registration
+	token, err := jwtService.GenerateJWT(user)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "JWT generation error"})
+		return
+	}
+	refreshToken, err := jwtService.GenerateRefreshToken(user, database)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Refresh token generation error"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Login successful", "accessToken": token, "refreshToken": refreshToken})
 }
 
 func login(c *gin.Context) {
-	var req AuthRequest
+	var req EmailRequest
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": "Invalid request body"})
 		return
@@ -163,7 +175,6 @@ func login(c *gin.Context) {
 	database := databaseService.GetDatabase(client)
 
 	user, err := databaseService.GetUserByEmail(&req.Email, database)
-	log.Print(user.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Database error"})
 		return
@@ -190,27 +201,19 @@ func login(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "Refresh token generation error"})
 		return
 	}
-	c.JSON(200, gin.H{"message": "Login successful", "token": token, "refreshToken": refreshToken})
+	c.JSON(200, gin.H{"message": "Login successful", "accessToken": token, "refreshToken": refreshToken})
 }
 
-type RefreshRequest struct {
-	RefreshToken string `json:"refreshToken"`
-}
+func refresh(c *gin.Context) {
+	var authToken string = c.Request.Header.Get("RefreshToken")
 
-func Refresh(c *gin.Context) {
-	// Bind the request body to the RefreshRequest struct
-	var req RefreshRequest
-	if err := c.BindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "Invalid request body"})
-		return
-	}
-	if req.RefreshToken == "" {
+	if authToken == "" {
 		c.JSON(400, gin.H{"error": "Invalid request body"})
 		return
 	}
 
 	// IsValid?
-	jwtToken, err := jwtService.ParseToken(req.RefreshToken)
+	jwtToken, err := jwtService.ParseToken(authToken)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "JWT parsing error"})
 		return
@@ -227,8 +230,6 @@ func Refresh(c *gin.Context) {
 		return
 	}
 	if claims.Type != "refresh" || claims.UserID == "" {
-		log.Print(claims.Type)
-		log.Print(claims.UserID)
 		c.JSON(400, gin.H{"error": "Invalid token"})
 		return
 	}
@@ -272,5 +273,66 @@ func Refresh(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "Refresh token generation error"})
 		return
 	}
-	c.JSON(200, gin.H{"message": "Refresh successful", "token": accessToken, "refreshToken": refreshToken})
+	c.JSON(200, gin.H{"message": "Refresh successful", "accessToken": accessToken, "refreshToken": refreshToken})
+}
+
+func auth(c *gin.Context) {
+	var authToken string = c.Request.Header.Get("Authorization")
+
+	if authToken == "" {
+		c.JSON(400, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// IsValid?
+	jwtToken, err := jwtService.ParseToken(authToken)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "JWT parsing error"})
+		return
+	}
+	if !jwtToken.Valid {
+		c.JSON(400, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Check claims
+	claims, err := jwtService.ExtractClaims(jwtToken)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "JWT parsing error"})
+		return
+	}
+	if claims.Type != "access" || claims.UserID == "" {
+		c.JSON(400, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Connect to the database
+	client, err := databaseService.GetClient()
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Database error"})
+		return
+	}
+	ctx := context.Background()
+	defer func(client *mongo.Client, ctx context.Context) {
+		err := client.Disconnect(ctx)
+		if err != nil {
+		}
+	}(client, ctx)
+	database := databaseService.GetDatabase(client)
+
+	// Check if the user exists and is active
+	user, err := databaseService.GetUserByID(&claims.UserID, database)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Database error"})
+		return
+	}
+	if user == nil {
+		c.JSON(400, gin.H{"error": "User does not exist"})
+		return
+	}
+	if !user.Active {
+		c.JSON(400, gin.H{"error": "User is not active"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Auth successful"})
 }

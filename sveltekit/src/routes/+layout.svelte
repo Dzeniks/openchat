@@ -1,6 +1,14 @@
 <script lang="ts">
+
+    import { onMount, onDestroy } from 'svelte';
     import Header from '$lib/components/Header.svelte';
     import Footer from "$lib/components/Footer.svelte";
+
+    onMount(() => {
+        console.log("onMount");
+        
+    });
+
 </script>
 
 
@@ -9,7 +17,7 @@
 <main>
     <slot/>
 </main>
-<Footer/>
+<!-- <Footer/> -->
 </body>
 
 <style>
