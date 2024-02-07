@@ -1,77 +1,76 @@
-<script>
-// @ts-nocheck
-
-	import Prompt from './../../lib/components/prompt.svelte';
+<script lang="ts">
     import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
-    import { fade } from "svelte/transition"
+    import { fade, fly } from "svelte/transition"
+	import Message from '../../lib/components/Message.svelte';
     // Create a writable store
     export const refreshToken = writable('');
     export const accessToken = writable('');
 
-    onMount(() => {
-        
-    });
+    type DataItem = {
+        owner: string,
+        date: Date,
+        prompt: string,
+        role: string,
+    };
+    
 
-    let DATA = [
-        {
-            owner: "Frank",
-            date: new Date(),
-            prompt: "This is message",
-            role: "AI",
-            loaded: false
-        },
-        {
-            owner: "AI",
-            date: new Date(),
-            prompt: "This is message NOW",
-            role: "User",
-            loaded: false
-        },
-        {
-            owner: "RealAI",
-            date: new Date(),
-            prompt: "This is message NOW",
-            role: "AI",
-            loaded: false
-        },
-    ].map(item => ({ ...item, loaded: false }));
+    let DATA: DataItem[] = [
+    ]
 
     let newPrompt = '';
 
-    function postPrompt() {
-        DATA = [...DATA, {
-            owner: "TestMeOut",
-            date: new Date(),
-            prompt: newPrompt,
-            role: "User",
-            loaded: false
-        }]
-
-        newPrompt = ""
+    const postPrompt = () => {
+        DATA = [
+            ...DATA,
+                {
+                    owner: "User",
+                    date: new Date(),
+                    prompt: newPrompt,
+                    role: "user",
+                }
+            ]
+            
         
-        console.log(newPrompt);
+        // Make request to localhost:8080/api/ChatCompletition
+        const response = fetch('http://localhost:5173/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt: newPrompt })
+        }).then(response => response.json()).then(data => {
+            
+            DATA = [
+                ...DATA,
+                {
+                    owner: "AI",
+                    date: new Date(),
+                    prompt: data?.output,
+                    role: "ai",
+                }
+            ]
+        }).catch(error => {
+            console.error('Error:', error);
 
-    }
+        }).catch(error => {
+            console.error('Error:', error);
+        })
+    }  
+        
 </script>
 
 <section>
     <div class="chat-window" style="overflow-y: scroll;">
-        {#key DATA}
-        <div in:fade={{ duration: 300, delay: item.loaded ? 0 : 200 * index }}>
-            {#each DATA as item, index}
-                {#if !item.loaded}
-                    <Prompt
-                        owner={item.owner}
-                        date={new Date(item.date)}
-                        prompt={item.prompt}
-                        role={item.role}
-                        loaded={item.loaded}
-                    />
-                {/if}
-            {/each}
-        </div>
-        {/key}
+        <h1 in:fade="{{ duration: 1000 }}">OpenChat-Beta</h1>
+        {#each DATA as item}
+            <Message
+                owner={item.owner}
+                date={new Date(item.date)}
+                prompt={item.prompt}
+                role={item.role}
+            />
+        {/each}
     </div>
     <div class="input-div">
         <textarea id="prompt-input" placeholder="Write me prompt :)" bind:value={newPrompt} />
@@ -85,19 +84,12 @@
         padding: 8px;
         margin-bottom: 16px;
         box-sizing: border-box;
-        border: 1px solid #ccc;
         border-radius: 4px;
         resize: vertical; /* Allow vertical resizing of the textarea */
     }
 
     .input-div {
         padding: 2rem;
-    }
-
-    input {
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
     }
 
     section {
@@ -153,8 +145,6 @@
     }
 
     .chat-window {
-        border: 2px red solid   ;
-
         display: flex;
         flex-direction: column;
         align-items: center;
