@@ -5,7 +5,7 @@ COPY requirements.txt /
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 # Add prepare.py
-ENV MODEL_NAME=mistralai/Mistral-7B-Instruct-v0.2
+ENV MODEL_NAME=albert/albert-base-v2
 COPY prepare.py /
 RUN python prepare.py
 
