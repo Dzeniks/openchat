@@ -2,8 +2,8 @@
     <a href="/">Home</a>
     <ul class="list">
         <li><a href="/about">About</a></li>
-        <li><a href="/projects">Projects</a></li>
-        <li><a href="/contacts">Contact</a></li>
+        <!-- <li><a href="/projects">Projects</a></li>
+        <li><a href="/contacts">Contact</a></li>-->
     </ul>
     <!-- <button class="menu">Menu</button> -->
 </nav>

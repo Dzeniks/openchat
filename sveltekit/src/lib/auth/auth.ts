@@ -10,7 +10,7 @@ export type AuthErrorResponse = {
 
 export async function login(email: string, password: string) {
     try {
-        const response = await fetch('http://localhost:8080/api/auth/login', {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export async function login(email: string, password: string) {
 
 export async function register(email: string, password: string) {
     try {
-        const response = await fetch('http://localhost:8080/api/auth/register', {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export async function register(email: string, password: string) {
 export async function refresh(refreshToken: string) {
     console.log("refreshing token");
     try {
-        const response = await fetch('http://localhost:8080/api/auth/refresh', {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/auth/refresh`, {
             method: 'POST',
             headers: {
                 RefreshToken: `${refreshToken}`
