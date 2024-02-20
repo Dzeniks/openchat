@@ -21,7 +21,7 @@ nf4_config = BitsAndBytesConfig(
 )
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, quantization_config=nf4_config, device_map={"cuda:0"})
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, quantization_config=nf4_config, device_map="auto")
 
 def run_model(job):
     print(f"Using device: {DEVICE} and model: {model_name}")
