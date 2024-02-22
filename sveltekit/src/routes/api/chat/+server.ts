@@ -12,12 +12,12 @@ export const POST: RequestHandler = async ({ request }) => {
             return json({ error: 'Prompt is required' });
         }
         
-        const response = await fetch(`${process.env.BACKEND_URL}/api/chat/ChatCompletetionTest`, {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/chat/ChatCompletetion`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(prompt)
+            body: JSON.stringify({"prompt": prompt})
         });
 
         if (!response.ok) {
