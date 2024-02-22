@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"server-go/lib/dotEnv"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,6 +56,7 @@ func ChatCompletetion(r *gin.Context) {
 		return
 	}
 	resp, err := http.Post(aiURL, "application/json", bytes.NewBuffer(reqBodyBytes))
+
 	if err != nil {
 		log.Println("Error making request to AI_URL:", err)
 		return
@@ -72,11 +72,11 @@ func ChatCompletetion(r *gin.Context) {
 		log.Println("Error decoding response body:", err)
 		return
 	}
-
 	r.JSON(200, gin.H{
 		"message": "OK",
 		"output":  chatCompletetionResponse.Output,
 	})
+
 }
 
 func ChatCompletetionTest(r *gin.Context) {
