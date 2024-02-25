@@ -13,5 +13,5 @@ model_name = os.getenv("MODEL_NAME")
 if model_name is None:
     raise Exception("MODEL_NAME environment variable is not set")
 
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModel.from_pretrained(model_name)
-
