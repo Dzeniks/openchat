@@ -16,9 +16,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     
     if (IsDev){
         hasPrivilege = true;
-    }
-
-    if (authorizedURLs.includes(pathname)) {
+    } else if (authorizedURLs.includes(pathname)) {
         if (accessToken){
             hasPrivilege = await auth(accessToken);
         }
@@ -56,7 +54,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 };
 
 async function auth(accessToken: string): Promise<boolean> {
-    const response = await fetch('http://localhost:8080/api/auth/', {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/auth/`, {
         method: 'POST',
         headers: {
             Authorization: `${accessToken}`

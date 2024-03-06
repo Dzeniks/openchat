@@ -84,8 +84,9 @@
     }
 
     #img-section {
+        align-items: center;
         background: var(--secondary);
-        height: 90vh;
+        height: 100vh;
     }
 
     img {

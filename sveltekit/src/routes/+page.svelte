@@ -1,11 +1,5 @@
 <script>
     import {onMount} from 'svelte';
-
-    onMount(() => {
-        
-
-    });
-
 </script>
 
 
@@ -24,10 +18,10 @@
         </div>
     </div>
 
-
-    <div class="image-container">
-        <img src="/AI-hand-1024.png" alt="AI hand">
-    </div>
+    
+        <div class="image-container">
+            <img src="/AI-hand-1024.png" alt="AI hand">
+        </div>
 </section>
 
 
@@ -58,8 +52,9 @@
     }
 
     .image-container {
+        align-items: center;
         background: var(--secondary);
-        height: 100%;
+        height: 100vh;
     }
 
     img {
@@ -92,7 +87,7 @@
         }
 
         section {
-            padding-top: 35%;
+            padding-top: 10vh;
             flex-direction: column;
             align-items: center;
 

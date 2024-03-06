@@ -33,7 +33,7 @@
             
         
         // Make request to localhost:8080/api/ChatCompletition
-        const response = fetch('http://localhost:3000/api/chat/', {
+        fetch('http://localhost:3000/api/chat/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

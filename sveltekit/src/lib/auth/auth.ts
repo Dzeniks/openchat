@@ -13,18 +13,22 @@ export async function login(email: string, password: string) {
         const response = await fetch(`${process.env.BACKEND_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
         });
-        const json = await response.json();
+
         if (response.ok) {
+            const json = await response.json();
             return json as AuthResponse;
+        } else {
+            // Server returned an error
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.message || 'Failed to login');
         }
     } catch(error){
-        // Handle any errors here
-        console.error(error);
-        return {error: error, message: "Failed to login"} as AuthErrorResponse;
+        console.error('Failed to login:', error);
+        throw new Error('Failed to login');
     }
 }
 
@@ -37,17 +41,19 @@ export async function register(email: string, password: string) {
         },
         body: JSON.stringify({ email, password }),
         });
-        const json = await response.json();
         if (response.ok) {
+            const json = await response.json();
             return json as AuthResponse;
         }
+        else {
+        // Server returned an error
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message || 'Failed to login');
+    } 
     } catch(error){
         // Handle any errors here
         console.error(error);
         return {error: error, message: "Failed to register"} as AuthErrorResponse;
-        
-        // Return an error message or throw an exception
-        // throw new Error('Failed to register');
     }
 }
 
@@ -65,9 +71,10 @@ export async function refresh(refreshToken: string) {
         if (response.ok) {
             const json = await response.json();
             return json as AuthResponse;
-        } if (response.status === 400) {
-            const json = await response.json();
-            console.log(json);
+        } else {
+            // Server returned an error
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.message || 'Failed to login');
         }
     } catch (error) {
         // Handle any errors here
