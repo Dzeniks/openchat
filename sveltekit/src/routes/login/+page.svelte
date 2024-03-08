@@ -1,8 +1,7 @@
 <script>
     import {onMount} from 'svelte';
 
-    const refreshToken = null;
-
+    // const refreshToken = null;
 
     onMount(() => {
         console.log("onMount");
@@ -37,10 +36,10 @@
         
         {#if !IsLogin}
         <form method="POST" action="?/register">
-            <button on:click={change}> Are you alredy registered ?</button>
-            <input type="text" placeholder="email" name="email">
-            <input type="password" placeholder="Password"bind:value={password}>
-            <input type="password" placeholder="Password"bind:value={rePassword}>
+            <button on:click={change}>Are you already registered ?</button>
+            <input type="text" placeholder="email" name="email" bind:value={email}>
+            <input type="password" placeholder="Password" name="password" bind:value={password}>
+            <input type="password" placeholder="Password" bind:value={rePassword}>
             <button>Register</button>
         </form>
         {/if}
@@ -48,8 +47,8 @@
         {#if IsLogin}
         <form method="POST" action="?/login">
             <button on:click={change}>Create new accounts</button>
-            <input type="text" placeholder="email" name="email">
-            <input type="password" placeholder="Password" name="password">
+            <input type="text" placeholder="email" name="email" bind:value={email}>
+            <input type="password" placeholder="Password" name="password" bind:value={password}>
             <button>Login</button>
         </form>
         {/if}

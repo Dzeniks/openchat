@@ -17,18 +17,21 @@ export async function login(email: string, password: string) {
             },
             body: JSON.stringify({ email, password }),
         });
-
+        console.log(response.status);
+        console.log(response.ok);
         if (response.ok) {
             const json = await response.json();
             return json as AuthResponse;
         } else {
             // Server returned an error
             const errorResponse = await response.json();
-            throw new Error(errorResponse.message || 'Failed to login');
+            return {error: errorResponse, message: "Failed to login"} as AuthErrorResponse;
+            // throw new Error(errorResponse.message || 'Failed to login');
         }
     } catch(error){
         console.error('Failed to login:', error);
-        throw new Error('Failed to login');
+        // throw new Error('Failed to login');
+        return {error: error, message: "Failed to login"} as AuthErrorResponse;
     }
 }
 
@@ -41,6 +44,9 @@ export async function register(email: string, password: string) {
         },
         body: JSON.stringify({ email, password }),
         });
+        console.log(response.status);
+        console.log(response.ok);
+        console.log(response.statusText);
         if (response.ok) {
             const json = await response.json();
             return json as AuthResponse;
@@ -48,7 +54,7 @@ export async function register(email: string, password: string) {
         else {
         // Server returned an error
         const errorResponse = await response.json();
-        throw new Error(errorResponse.message || 'Failed to login');
+        return {error: errorResponse, message: "Failed to register"} as AuthErrorResponse;
     } 
     } catch(error){
         // Handle any errors here

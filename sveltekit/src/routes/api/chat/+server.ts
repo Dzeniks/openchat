@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
+const IsDev = process.env.DEV === 'true';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -11,7 +12,11 @@ export const POST: RequestHandler = async ({ request }) => {
         if (!prompt) {
             return json({ error: 'Prompt is required' });
         }
-        const response = await fetch(`${process.env.BACKEND_URL}/api/chat/ChatCompletetion`, {
+        let url = `${process.env.BACKEND_URL}/api/chat/SentPrompt`;
+        if(IsDev){
+            url = `${process.env.BACKEND_URL}/api/chat/SentPromptTest`
+        }
+        const response = await fetch(url, {
 
             method: 'POST',
             headers: {

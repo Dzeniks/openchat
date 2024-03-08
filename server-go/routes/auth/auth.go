@@ -2,7 +2,8 @@ package auth
 
 import (
 	"context"
-	"regexp"
+	"github.com/labstack/gommon/log"
+	auth2 "server-go/lib/auth"
 	"server-go/lib/databaseService"
 	"server-go/lib/jwtService"
 	"time"
@@ -28,40 +29,8 @@ type EmailRequest struct {
 	Password string `json:"password"`
 }
 
-func isValidEmail(email string) bool {
-	// Regular expression for a simple email validation
-	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-
-	// Compile the regex
-	re := regexp.MustCompile(emailRegex)
-
-	// Use the MatchString method to check if the email matches the pattern
-	return re.MatchString(email)
-}
-
-func isValidPassword(password string) bool {
-	// Check minimum length
-	if len(password) < 8 {
-		return false
-	}
-
-	// Check for at least one uppercase letter
-	upperCaseRegex := regexp.MustCompile(`[A-Z]`)
-	if !upperCaseRegex.MatchString(password) {
-		return false
-	}
-
-	// Check for at least one digit
-	digitRegex := regexp.MustCompile(`[0-9]`)
-	if !digitRegex.MatchString(password) {
-		return false
-	}
-
-	// All checks passed
-	return true
-}
-
 func register(c *gin.Context) {
+	log.Print("register")
 	// Define a struct to hold the request body
 
 	// Bind the request body to the RegisterRequest struct
@@ -75,16 +44,17 @@ func register(c *gin.Context) {
 		return
 	}
 	// Check if data are valid
-	if !isValidEmail(req.Email) {
+	if !auth2.IsValidEmail(req.Email) {
 		c.JSON(400, gin.H{"error": "Invalid email"})
 		return
 	}
-	if !isValidPassword(req.Password) {
+	if !auth2.IsValidPassword(req.Password) {
 		c.JSON(400, gin.H{"error": "Invalid password"})
 		return
 	}
 	client, err := databaseService.GetClient()
 	if err != nil {
+		log.Error("Database error Client error")
 		c.JSON(500, gin.H{"error": "Database error"})
 		return
 	}
@@ -98,6 +68,7 @@ func register(c *gin.Context) {
 	database := databaseService.GetDatabase(client)
 	user, err := databaseService.GetUserByEmail(&req.Email, database)
 	if err != nil {
+		log.Error("Database error")
 		c.JSON(500, gin.H{"error": "Database error"})
 		return
 	}
@@ -107,6 +78,7 @@ func register(c *gin.Context) {
 	}
 	hashedPassword, err := jwtService.HashPassword(req.Password)
 	if err != nil {
+		log.Error("Password hashing error")
 		c.JSON(500, gin.H{"error": "Password hashing error"})
 		return
 	}
@@ -120,6 +92,7 @@ func register(c *gin.Context) {
 		Active:           true}
 	err = databaseService.CreateUser(user, database)
 	if err != nil {
+		log.Error("Database error")
 		c.JSON(500, gin.H{"error": "Database error"})
 		return
 	}
@@ -127,11 +100,13 @@ func register(c *gin.Context) {
 	// login after registration
 	token, err := jwtService.GenerateJWT(user)
 	if err != nil {
+		log.Error("JWT generation error")
 		c.JSON(500, gin.H{"error": "JWT generation error"})
 		return
 	}
 	refreshToken, err := jwtService.GenerateRefreshToken(user, database)
 	if err != nil {
+		log.Error("Refresh token generation error")
 		c.JSON(500, gin.H{"error": "Refresh token generation error"})
 		return
 	}
@@ -139,6 +114,7 @@ func register(c *gin.Context) {
 }
 
 func login(c *gin.Context) {
+	log.Print("login")
 	var req EmailRequest
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": "Invalid request body"})
@@ -150,11 +126,11 @@ func login(c *gin.Context) {
 	}
 
 	// Check if data are valid
-	if !isValidEmail(req.Email) {
+	if !auth2.IsValidEmail(req.Email) {
 		c.JSON(400, gin.H{"error": "Invalid email"})
 		return
 	}
-	if !isValidPassword(req.Password) {
+	if !auth2.IsValidPassword(req.Password) {
 		c.JSON(400, gin.H{"error": "Invalid password"})
 		return
 	}
