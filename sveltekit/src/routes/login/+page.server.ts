@@ -1,6 +1,7 @@
 import type { Actions } from './$types';
 import type { AuthResponse, AuthErrorResponse } from '$lib/auth/auth';
 import { login, register } from '$lib/auth/auth';
+import { redirect } from '@sveltejs/kit';
 // import { redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -26,27 +27,22 @@ export const actions = {
                         path: '/',
                     });
                 }
-                // console.log(data);
-                // if ('error' in data){
-                //     throw redirect(302, `/login?error=${data.error}&message=${data.message}`)
-                // }
+                console.log(data);
+                if ('error' in data){
+                    throw redirect(302, `/login?error=${data.error}&message=${data.message}`)
+                }
             }
-            // throw redirect(302, '/chat')
+            throw redirect(302, '/chat')
     },
     register : async ({cookies, request}) => {
-          console.log('register');
           const form = await request.formData();
           const email = form.get('email') as string;
           const password = form.get('password') as string;
-          console.log('Register: Before',email);
-          console.log('Register Password:', password);
           if (!email || !password) {
               console.log('No email or password');
-              return;
-          }
-          console.log('Register: Before',email);
+              return {status: 400, error: 'No email or password', message: "Failed to register"} as AuthErrorResponse;
+          };
           const data : AuthResponse | AuthErrorResponse | undefined  = await register(email, password);
-          console.log("Register: After", data);
           if (data) {
                 if ('accessToken' in data && 'refreshToken' in data){
                     cookies.set('accessToken', data.accessToken, {
@@ -61,10 +57,9 @@ export const actions = {
                     });
                 }
                 if ('error' in data){
-                    console.log(data.error);
-                    // throw redirect(302, `/login?error=${data.error}&message=${data.message}`)
+                    throw redirect(302, `/login?error=${data.error}&message=${data.message}`)
                 }
             }
-            // throw redirect(302, '/chat')
+            throw redirect(302, '/chat')
         },
 } satisfies Actions;
