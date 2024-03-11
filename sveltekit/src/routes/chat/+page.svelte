@@ -1,9 +1,41 @@
 <script lang="ts">
-	import { writable } from 'svelte/store';
-	import { fade} from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import Message from '../../lib/components/Message.svelte';
-	export const refreshToken = writable('');
-	export const accessToken = writable('');
+	import { onMount } from 'svelte';
+
+	let chatID = ""
+
+	const getChatID = () => {
+		fetch('http://localhost:3000/api/chat/get', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': localStorage.getItem('accessToken') as string
+			},
+		}).then(response => response.json()).then(data => {
+			if (data.chat_id != undefined) {
+				chatID = data.chat_id
+			} else {
+				if (data.error) {
+					alert(data.error);
+				}
+			}
+		}).catch(error => {
+			console.error('Error:', error);
+		});
+
+
+	};
+
+	// OnMount make request to server to get chat history
+	onMount(() => {
+		getChatID()
+		// You can perform any initialization logic here
+		// For example, fetching data from an API
+		// Updating component state, etc.
+	});
+
+
 
 	type DataItem = {
 		owner: string,
@@ -12,10 +44,10 @@
 		role: string,
 	};
 
-
 	let DATA: DataItem[] = [];
 
 	let newPrompt = '';
+
 	const postPrompt = () => {
 		DATA = [
 			...DATA,
@@ -27,12 +59,13 @@
 			}
 		];
 
-		fetch('http://localhost:3000/api/chat/', {
+		fetch('http://localhost:3000/api/chat/sent', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': localStorage.getItem('accessToken') as string
 			},
-			body: JSON.stringify({ prompt: newPrompt })
+			body: JSON.stringify({chat_id: chatID , prompt: newPrompt })
 		}).then(response => response.json()).then(data => {
 			if (data.output != undefined) {
 				DATA = [
@@ -45,16 +78,11 @@
 					}
 				];
 			} else {
-				// Remove last element from DATA
 				DATA = DATA.slice(0, -1);
 				if (data.error) {
-					// Alert error message
 					alert(data.error);
 				}
 			}
-		}).catch(error => {
-			console.error('Error:', error);
-
 		}).catch(error => {
 			console.error('Error:', error);
 		});
@@ -87,7 +115,7 @@
         margin-bottom: 16px;
         box-sizing: border-box;
         border-radius: 4px;
-        resize: vertical; /* Allow vertical resizing of the textarea */
+        resize: vertical;
     }
 
     .input-div {
