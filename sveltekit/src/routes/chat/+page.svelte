@@ -14,6 +14,7 @@
 			},
 		}).then(response => response.json()).then(data => {
 			if (data.chat_id != undefined) {
+				console.log(data.chat_id);
 				chatID = data.chat_id
 			} else {
 				if (data.error) {
@@ -47,8 +48,12 @@
 	let DATA: DataItem[] = [];
 
 	let newPrompt = '';
-
+	let isDisabled = false;
 	const postPrompt = () => {
+		isDisabled = true;
+
+
+
 		DATA = [
 			...DATA,
 			{
@@ -67,6 +72,7 @@
 			},
 			body: JSON.stringify({chat_id: chatID , prompt: newPrompt })
 		}).then(response => response.json()).then(data => {
+			isDisabled = false;
 			if (data.output != undefined) {
 				DATA = [
 					...DATA,
@@ -84,6 +90,8 @@
 				}
 			}
 		}).catch(error => {
+			isDisabled = false;
+
 			console.error('Error:', error);
 		});
 	};
@@ -104,7 +112,7 @@
 	</div>
 	<div class="input-div">
 		<textarea id="prompt-input" placeholder="Write me prompt :)" bind:value={newPrompt} />
-		<button on:click={postPrompt}>Post Data</button>
+		<button on:click={postPrompt} disabled={isDisabled}>Post Data</button>
 	</div>
 </section>
 

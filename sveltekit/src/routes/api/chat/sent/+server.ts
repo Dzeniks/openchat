@@ -7,6 +7,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	try {
     const requestJson = await request.json();
     const prompt = requestJson.prompt;
+		const chatID = requestJson.chat_id;
     const accessToken = cookies.get('accessToken');
     if (!accessToken) {
 			return json({ error: 'Unauthorized' });
@@ -25,7 +26,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				'Content-Type': 'application/json',
 				'Authorization': `${accessToken}`
 			},
-			body: JSON.stringify({ 'prompt': prompt })
+			body: JSON.stringify({chat_id: chatID , prompt: prompt })
 		});
 		const result = await response.json();
 		return json(result);

@@ -5,7 +5,6 @@ import (
 	"log"
 	"regexp"
 	"server-go/lib/jwtService"
-	"time"
 )
 
 type AuthRequest struct {
@@ -14,10 +13,9 @@ type AuthRequest struct {
 
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		t := time.Now()
-
 		// Check if authenticated
 		authToken := c.GetHeader("Authorization")
+		log.Print("authToken: ", authToken)
 		if authToken == "" {
 			c.Abort()
 		}
@@ -47,12 +45,6 @@ func AuthRequired() gin.HandlerFunc {
 		}
 
 		c.Next()
-
-		latency := time.Since(t)
-		log.Print(latency)
-
-		status := c.Writer.Status()
-		log.Println(status)
 	}
 }
 
