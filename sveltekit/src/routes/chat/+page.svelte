@@ -1,81 +1,119 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { writable } from 'svelte/store';
-    import { fade, fly } from "svelte/transition"
+	import { fade } from 'svelte/transition';
 	import Message from '../../lib/components/Message.svelte';
-    // Create a writable store
-    export const refreshToken = writable('');
-    export const accessToken = writable('');
+	import { onMount } from 'svelte';
 
-    type DataItem = {
-        owner: string,
-        date: Date,
-        prompt: string,
-        role: string,
-    };
-    
+	let chatID = ""
 
-    let DATA: DataItem[] = [
-    ]
+	const getChatID = () => {
+		fetch('http://localhost:3000/api/chat/get', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': localStorage.getItem('accessToken') as string
+			},
+		}).then(response => response.json()).then(data => {
+			if (data.chat_id != undefined) {
+				console.log(data.chat_id);
+				chatID = data.chat_id
+			} else {
+				if (data.error) {
+					alert(data.error);
+				}
+			}
+		}).catch(error => {
+			console.error('Error:', error);
+		});
 
-    let newPrompt = '';
 
-    const postPrompt = () => {
-        DATA = [
-            ...DATA,
-                {
-                    owner: "User",
-                    date: new Date(),
-                    prompt: newPrompt,
-                    role: "user",
-                }
-            ]
-            
-        
-        // Make request to localhost:8080/api/ChatCompletition
-        fetch('http://localhost:3000/api/chat/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt: newPrompt })
-        }).then(response => response.json()).then(data => {
-            
-            DATA = [
-                ...DATA,
-                {
-                    owner: "AI",
-                    date: new Date(),
-                    prompt: data?.output,
-                    role: "ai",
-                }
-            ]
-        }).catch(error => {
-            console.error('Error:', error);
+	};
 
-        }).catch(error => {
-            console.error('Error:', error);
-        })
-    }  
-        
+	// OnMount make request to server to get chat history
+	onMount(() => {
+		getChatID()
+		// You can perform any initialization logic here
+		// For example, fetching data from an API
+		// Updating component state, etc.
+	});
+
+
+
+	type DataItem = {
+		owner: string,
+		date: Date,
+		prompt: string,
+		role: string,
+	};
+
+	let DATA: DataItem[] = [];
+
+	let newPrompt = '';
+	let isDisabled = false;
+	const postPrompt = () => {
+		isDisabled = true;
+
+
+
+		DATA = [
+			...DATA,
+			{
+				owner: 'User',
+				date: new Date(),
+				prompt: newPrompt,
+				role: 'user'
+			}
+		];
+
+		fetch('http://localhost:3000/api/chat/sent', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': localStorage.getItem('accessToken') as string
+			},
+			body: JSON.stringify({chat_id: chatID , prompt: newPrompt })
+		}).then(response => response.json()).then(data => {
+			isDisabled = false;
+			if (data.output != undefined) {
+				DATA = [
+					...DATA,
+					{
+						owner: 'OpenAI',
+						date: new Date(),
+						prompt: data.output,
+						role: 'openai'
+					}
+				];
+			} else {
+				DATA = DATA.slice(0, -1);
+				if (data.error) {
+					alert(data.error);
+				}
+			}
+		}).catch(error => {
+			isDisabled = false;
+
+			console.error('Error:', error);
+		});
+	};
+
 </script>
 
 <section>
-    <div class="chat-window" style="overflow-y: scroll;">
-        <h1 in:fade="{{ duration: 1000 }}">OpenChat-Beta</h1>
-        {#each DATA as item}
-            <Message
-                owner={item.owner}
-                date={new Date(item.date)}
-                prompt={item.prompt}
-                role={item.role}
-            />
-        {/each}
-    </div>
-    <div class="input-div">
-        <textarea id="prompt-input" placeholder="Write me prompt :)" bind:value={newPrompt} />
-        <button on:click={postPrompt}>Post Data</button>
-    </div>
+	<div class="chat-window" style="overflow-y: scroll;">
+		<h1 in:fade="{{ duration: 1000 }}">OpenChat-Beta</h1>
+		{#each DATA as item}
+			<Message
+				owner={item.owner}
+				date={new Date(item.date)}
+				prompt={item.prompt}
+				role={item.role}
+			/>
+		{/each}
+	</div>
+	<div class="input-div">
+		<textarea id="prompt-input" placeholder="Write me prompt :)" bind:value={newPrompt} />
+		<button on:click={postPrompt} disabled={isDisabled}>Post Data</button>
+	</div>
 </section>
 
 <style>
@@ -85,7 +123,7 @@
         margin-bottom: 16px;
         box-sizing: border-box;
         border-radius: 4px;
-        resize: vertical; /* Allow vertical resizing of the textarea */
+        resize: vertical;
     }
 
     .input-div {
@@ -101,21 +139,21 @@
         width: 80vw;
         height: 90vh;
         background-color: var(--secondary);
-        
+
         justify-content: space-between;
         gap: 50px;
 
         font-size: 16px;
     }
 
-        
+
     @media (max-width: 768px) {
         section {
             width: 100vw;
         }
     }
 
-    h1{
+    h1 {
         text-align: center;
         font-size: 3rem;
         font-weight: 900;
@@ -124,12 +162,8 @@
     div {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        
         width: 50%;
-
         justify-content: space-between;
-        grid-area: 20px;
     }
 
     @media (max-width: 800px) {
@@ -150,7 +184,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: 5px;
-        
+
         width: 100%;
         height: 90%;
         margin: 0;

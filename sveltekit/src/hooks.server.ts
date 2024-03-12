@@ -1,5 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
-import { refresh, type AuthResponse, type AuthErrorResponse } from '$lib/auth/auth';
+import { type AuthErrorResponse, type AuthResponse, refresh } from '$lib/auth/auth';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -44,13 +44,12 @@ export const handle: Handle = async ({ event, resolve }) => {
             return new Response('Unauthorized', {
                 status: 302,
                 headers: {
-                    Location: '/login', // replace with your login page URL
+                    Location: '/login',
                 },
             });    
         }
     }
-    const response = await resolve(event);
-    return response;
+    return resolve(event);
 };
 
 async function auth(accessToken: string): Promise<boolean> {
