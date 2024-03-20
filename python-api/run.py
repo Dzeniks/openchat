@@ -25,20 +25,26 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name,
                                              torch_dtype=torch.float16,
                                              quantization_config=nf4_config,
-                                             attn_implementation="flash_attention_2",
+#                                              attn_implementation="flash_attention_2",
                                              device_map="auto")
 
 
 def run_model(job):
-    print(f"Using device: {DEVICE} and model: {model_name}")
-    prompt = create_prompt(job["input"]["prompt"])
-    inputs = tokenize_prompt(tokenizer, prompt, DEVICE)
-    model_params = get_model_params(job)
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs, **model_params
-        )
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    with torch.backends.cuda.sdp_kernel(
+            enable_flash=True,
+            enable_math=False,
+            enable_mem_efficient=False
+    ):
+        print(f"Using device: {DEVICE} and model: {model_name}")
+        prompt = create_prompt(job["input"]["prompt"])
+        inputs = tokenize_prompt(tokenizer, prompt, DEVICE)
+        max_new_tokens, repetition_penalty = get_model_params(job)
+        with torch.no_grad():
+            outputs = model.generate(
+                inputs, max_new_tokens=max_new_tokens, repetition_penalty=repetition_penalty
+            )
+        model_output_decoded = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return model_output_decoded.replace(prompt.replace("<s>", ""), "").strip()
 
 
 runpod.serverless.start({"handler": run_model})

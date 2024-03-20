@@ -1,7 +1,4 @@
-PROMPT_TEMPLATE = """
-<bos><start_of_turn>user
-Write a hello world program<end_of_turn>
-<start_of_turn>model
-"""
+MESSAGE_SYMBOL = "message"
+PROMPT_TEMPLATE_LAMMA = f"""<s>[INST]{MESSAGE_SYMBOL} [/INST]"""
 MAX_NEW_TOKENS = 100
 REPEAT_PENALTY = 1.0
