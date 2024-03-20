@@ -1,3 +1,6 @@
+venv/
+__pycache__/
+
 pkg/
 /node_modules
 .idea

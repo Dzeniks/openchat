@@ -36,7 +36,7 @@ type SentPromptRequest struct {
 
 type AIRequest struct {
 	Input struct {
-		Prompt string `json:"prompt"`
+		Prompts []string `json:"prompts"`
 	} `json:"input"`
 }
 
@@ -66,19 +66,32 @@ func SentPrompt(r *gin.Context) {
 
 	database := ginUtils.GetDatabase(r)
 
-	payloadAI := AIRequest{
-		Input: struct {
-			Prompt string `json:"prompt"`
-		}{
-			Prompt: payloadUser.Prompt,
-		},
-	}
-
 	var message = databaseService.Message{
 		//ChatID
 		SenderID: claims.UserID,
 		Content:  payloadUser.Prompt,
 		SentAt:   time.Now(),
+	}
+
+	//Get chat
+	chatID := payloadUser.ChatID
+	chat, err := databaseService.GetChatByID(chatID, database)
+	if err != nil {
+		r.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	chat.Messages = append(chat.Messages, message)
+	var chatMessages []string
+	for _, message := range chat.Messages {
+		chatMessages = append(chatMessages, message.Content)
+	}
+
+	payloadAI := AIRequest{
+		Input: struct {
+			Prompts []string `json:"prompts"`
+		}{
+			Prompts: chatMessages,
+		},
 	}
 
 	//Request to AI_URL
