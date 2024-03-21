@@ -34,10 +34,7 @@ def run_model(job):
             enable_math=False,
             enable_mem_efficient=False
     ):
-        print(f"Using device: {DEVICE} and model: {model_name}")
-        print(job["input"]["prompts"])
         prompt = create_prompt(job["input"]["prompts"])
-        print(f"Prompt: {prompt}")
         inputs = tokenize_prompt(tokenizer, prompt, DEVICE)
         max_new_tokens, repetition_penalty = get_model_params(job)
         with torch.no_grad():

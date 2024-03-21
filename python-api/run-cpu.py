@@ -14,22 +14,23 @@ model_name = os.getenv("MODEL_NAME")
 if model_name is None:
     raise Exception("MODEL_NAME environment variable is not set")
 
-print(f"Using device: {DEVICE} and model: {model_name}")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16,
                                              device_map="auto")
 
 
 def run_model(job):
-    print(f"Using device: {DEVICE} and model: {model_name}")
-    prompt = create_prompt(job["input"]["prompt"])
+    prompt = create_prompt(job["input"]["prompts"])
     inputs = tokenize_prompt(tokenizer, prompt, DEVICE)
-    model_params = get_model_params(job)
+    max_new_tokens, repetition_penalty = get_model_params(job)
     with torch.no_grad():
         outputs = model.generate(
-            **inputs, **model_params
+            inputs, max_new_tokens=max_new_tokens, repetition_penalty=repetition_penalty
         )
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    output = outputs[0][len(inputs[0]):]
+    print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+    model_output_decoded = tokenizer.decode(output, skip_special_tokens=True)
+    return model_output_decoded
 
 
 runpod.serverless.start({"handler": run_model})
