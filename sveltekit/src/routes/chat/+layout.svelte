@@ -2,17 +2,15 @@
     import ChatSideBar from '$lib/components/chatSideBar.svelte';
 </script>
 
-
-<body>
+<main>
     <ChatSideBar/>
-    <main>
+    <div>
         <slot/>
-    </main>
-</body>
-
+    </div>
+</main>
 
 <style>
-    body {
+    main {
         padding: 0;
         margin: 0;
         display: flex;

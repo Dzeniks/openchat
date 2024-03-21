@@ -21,7 +21,6 @@
 
 
 <style>
-
     section {
         display: flex;
         flex-direction: row;
