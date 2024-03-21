@@ -1,12 +1,14 @@
-import { type Handle, redirect } from '@sveltejs/kit';
+import type { LayoutServerLoad } from './$types';
+import { redirect } from '@sveltejs/kit';
 import { type AuthErrorResponse, type AuthResponse, refresh } from '$lib/auth/auth';
 import dotenv from 'dotenv';
+
 
 dotenv.config();
 
 const authorizedURLs = ['/chat', '/admin'];
 
-export const handle: Handle = async ({ event, resolve }) => {
+export const load = (async (event) => {
     const { pathname } = event.url;
     const accessToken = event.cookies.get('accessToken');
     const refreshToken = event.cookies.get('refreshToken');
@@ -39,8 +41,7 @@ export const handle: Handle = async ({ event, resolve }) => {
             redirect(302, '/login')
         }
     }
-    return resolve(event);
-};
+}) satisfies LayoutServerLoad;
 
 async function auth(accessToken: string): Promise<boolean> {
     const response = await fetch(`${process.env.BACKEND_URL}/api/auth/`, {
@@ -51,4 +52,3 @@ async function auth(accessToken: string): Promise<boolean> {
     });
     return response.ok;
 }
-

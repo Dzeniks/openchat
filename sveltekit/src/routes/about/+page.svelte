@@ -92,7 +92,9 @@
 
     img {
         max-width: 100%;
-        height: auto;
+        height: 100vh;
+        overflow: hidden;
+        object-fit: cover;
     }
 
     @media (max-width: 800px) {
@@ -105,7 +107,7 @@
             align-items: center;
             justify-content: center;
             background: var(--secondary);
-            height: 50vh;            
+            height: 50vh;
         }
 
         #text-section {
@@ -113,7 +115,7 @@
         }
 
         section {
-            margin-top: 35%;
+            margin-top: 15%;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;

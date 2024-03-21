@@ -1,8 +1,3 @@
-<script>
-    import {onMount} from 'svelte';
-</script>
-
-
 <section>
     <div class="text-container">
         <h1>Welcome to OpenChat</h1>
@@ -31,7 +26,10 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
-        width: 100vw;
+        width: 100dvw;
+        height: 100dvh;
+        margin: 0;
+        padding: 0;
     }
 
     h1{
@@ -47,19 +45,21 @@
     }
 
     .text-container {
-        width: 50%;
+        width: 50vw;
         text-align: center;
     }
 
     .image-container {
         align-items: center;
         background: var(--secondary);
-        height: 100vh;
+        height: 100dvh;
+        overflow: hidden; /* Prevent overflowing content */
     }
 
     img {
         max-width: 100%;
         height: auto;
+        object-fit: cover;
     }
 
     #chat-div-btn{
@@ -87,18 +87,12 @@
         }
 
         section {
-            padding-top: 10vh;
+            padding-top: 5vh;
             flex-direction: column;
             align-items: center;
 
             justify-content: space-between;
             gap: 50px;
-        }
-    }
-
-    @media (max-width: 1200px) {
-        img {
-            max-width: 90%;
         }
     }
 

@@ -27,10 +27,12 @@
 
 
 	};
+	let loaded = false;
 
 	// OnMount make request to server to get chat history
 	onMount(() => {
 		getChatID()
+		loaded = true
 		// You can perform any initialization logic here
 		// For example, fetching data from an API
 		// Updating component state, etc.
@@ -100,11 +102,12 @@
 
 <section>
 	<div class="chat-window" style="overflow-y: scroll;">
-		<h1 in:fade="{{ duration: 1000 }}">OpenChat-Beta</h1>
+		{#key loaded}
+					<h1 in:fade="{{ duration: 2000 }}" style="color: var(--primary)">OpenChat-Beta</h1>
+		{/key}
 		{#each DATA as item}
 			<Message
 				owner={item.owner}
-				date={new Date(item.date)}
 				prompt={item.prompt}
 				role={item.role}
 			/>
@@ -169,7 +172,7 @@
     @media (max-width: 800px) {
 
         section {
-            padding-top: 35%;
+            /*padding-top: 15%;*/
             flex-direction: column;
             align-items: center;
 

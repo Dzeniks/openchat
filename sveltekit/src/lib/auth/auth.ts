@@ -58,7 +58,6 @@ export async function register(email: string, password: string) {
 
 
 export async function refresh(refreshToken: string) {
-    console.log("refreshing token");
     try {
         const response = await fetch(`${process.env.BACKEND_URL}/api/auth/refresh`, {
             method: 'POST',
@@ -66,7 +65,6 @@ export async function refresh(refreshToken: string) {
                 RefreshToken: `${refreshToken}`
             }
         });
-        console.log(response.status);
         if (response.ok) {
             const json = await response.json();
             return json as AuthResponse;
