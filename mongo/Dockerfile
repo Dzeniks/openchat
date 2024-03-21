@@ -7,4 +7,4 @@ ENV MONGO_INITDB_ROOT_PASSWORD=toor
 ENV MONGO_INITDB_DATABASE=openchat
 
 # Copy a script to initialize the database and collection
-# COPY init-mongo.js /docker-entrypoint-initdb.d/
+COPY init-mongo.js /docker-entrypoint-initdb.d/

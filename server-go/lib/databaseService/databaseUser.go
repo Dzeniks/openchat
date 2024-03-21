@@ -69,7 +69,7 @@ func GetAllChats(UserID string, database *mongo.Database) (*[]Chat, error) {
 	defer chats_cursor.Close(ctx)
 	for chats_cursor.Next(ctx) {
 		var chat Chat // Replace with your chat struct
-		err := chats_cursor.Decode(&chat)
+		err = chats_cursor.Decode(&chat)
 		if err == nil {
 			chats = append(chats, chat)
 		}
@@ -78,4 +78,17 @@ func GetAllChats(UserID string, database *mongo.Database) (*[]Chat, error) {
 		return nil, err
 	}
 	return &chats, nil
+}
+
+func GetChat(UserID string, ChatID string, database *mongo.Database) (*Chat, error) {
+	// Combine UserID_ChatID to string
+	filterString := ChatID + "_" + UserID
+	filter := bson.M{"_id": filterString}
+	ctx := context.Background()
+	var chat Chat
+	err := database.Collection("chats").FindOne(ctx, filter).Decode(&chat)
+	if err != nil {
+		return nil, err
+	}
+	return &chat, nil
 }

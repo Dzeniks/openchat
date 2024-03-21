@@ -1,5 +1,5 @@
 {
     "input" : {
-        "prompt" : "Who is president of USA?"
+        "prompts" : ["Who is president of USA?"]
     }
 }

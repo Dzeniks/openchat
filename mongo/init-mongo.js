@@ -12,3 +12,4 @@ db.createUser({
 db = new Mongo().getDB("openchat");
 
 db.createCollection('users', { capped: false });
+db.createCollection('chats', { capped: false });

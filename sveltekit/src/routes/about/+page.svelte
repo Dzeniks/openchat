@@ -79,6 +79,7 @@
     }
 
     #text-section {
+        padding: 20px;
         width: 50%;
         text-align: center;
     }

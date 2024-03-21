@@ -20,7 +20,7 @@
     
     .prompt {
         padding: 1rem;
-        width: 40vw;
+        width: 60vw;
         background-color: #f1f1f1;
         border-radius: 1rem;
     }
