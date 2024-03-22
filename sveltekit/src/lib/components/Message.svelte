@@ -1,7 +1,6 @@
 <script lang="ts">
     import { fade } from "svelte/transition";
     export var owner: string;
-    export var date: Date;
     export var prompt: string;
     export var role: string;
 </script>

@@ -1,23 +1,18 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
     import Header from '$lib/components/Header.svelte';
-    import Footer from "$lib/components/Footer.svelte";
+	import { fade, scale, slide, fly, draw, blur } from 'svelte/transition';
 
-    onMount(() => {
-        console.log("onMount");
-        
-    });
-
+    export let data;
 </script>
 
 
-<body>
 <Header/>
-<main>
-    <slot/>
-</main>
-<!-- <Footer/> -->
-</body>
+
+{#key data.pathname}
+	<main transition:fade="{{delay: 50, duration: 1000}}">
+		<slot />
+    </main>
+{/key}
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&display=swap');
@@ -35,10 +30,6 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-    }
-
-    body {
-        margin: 0;
-
+            margin: 0;
     }
 </style>

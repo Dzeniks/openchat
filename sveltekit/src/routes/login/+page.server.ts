@@ -2,6 +2,7 @@ import type { Actions } from './$types';
 import type { AuthResponse, AuthErrorResponse } from '$lib/auth/auth';
 import { login, register } from '$lib/auth/auth';
 import { redirect } from '@sveltejs/kit';
+import { goto } from '$app/navigation';
 // import { redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -57,9 +58,9 @@ export const actions = {
                     });
                 }
                 if ('error' in data){
-                    throw redirect(302, `/login?error=${data.error}&message=${data.message}`)
+                    throw redirect(301, `/login?error=${data.error}&message=${data.message}`)
                 }
             }
-            throw redirect(302, '/chat')
+            throw await goto('/chat')
         },
 } satisfies Actions;

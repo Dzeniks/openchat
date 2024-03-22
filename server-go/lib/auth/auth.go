@@ -17,7 +17,7 @@ func AuthRequired() gin.HandlerFunc {
 		authToken := c.GetHeader("Authorization")
 		log.Print("authToken: ", authToken)
 		if authToken == "" {
-			c.Abort()
+			c.JSON(401, gin.H{"error": "Auth Token required"})
 		}
 		if authToken == "" {
 			c.JSON(400, gin.H{"error": "Invalid request body"})
