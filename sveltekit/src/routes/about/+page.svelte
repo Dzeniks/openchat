@@ -82,6 +82,7 @@
         padding: 20px;
         width: 50%;
         text-align: center;
+        padding: 0 5vw;
     }
 
     #img-section {

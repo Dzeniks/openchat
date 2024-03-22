@@ -46,6 +46,7 @@
     .text-container {
         width: 50vw;
         text-align: center;
+        padding: 0 5vw;
     }
 
     .image-container {
@@ -85,13 +86,14 @@
             width: 100%;
         }
 
+        .image-container {
+            display: none;
+        }
+
         section {
-            padding-top: 5vh;
             flex-direction: column;
             align-items: center;
-
-            justify-content: space-between;
-            gap: 50px;
+            height: 92vh;
         }
     }
 
