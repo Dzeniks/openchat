@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/labstack/gommon/log"
-	auth2 "server-go/lib/auth"
+	"server-go/lib/authorization"
 	"server-go/lib/databaseService"
 	"server-go/lib/jwtService"
 	"time"
@@ -13,9 +13,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// RegisterRoutes registers routes for the auth package.
+// InitAuth RegisterRoutes registers routes for the authorization package.
 func InitAuth(r *gin.RouterGroup) {
-	authGroup := r.Group("/auth")
+	authGroup := r.Group("/authorization")
 	{
 		authGroup.POST("/", auth)
 		authGroup.POST("/login", login)
@@ -44,11 +44,11 @@ func register(c *gin.Context) {
 		return
 	}
 	// Check if data are valid
-	if !auth2.IsValidEmail(req.Email) {
+	if !authorization.IsValidEmail(req.Email) {
 		c.JSON(400, gin.H{"error": "Invalid email"})
 		return
 	}
-	if !auth2.IsValidPassword(req.Password) {
+	if !authorization.IsValidPassword(req.Password) {
 		c.JSON(400, gin.H{"error": "Invalid password"})
 		return
 	}
@@ -76,7 +76,7 @@ func register(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "User already exists"})
 		return
 	}
-	hashedPassword, err := jwtService.HashPassword(req.Password)
+	hashedPassword, err := authorization.HashPassword(req.Password)
 	if err != nil {
 		log.Error("Password hashing error")
 		c.JSON(500, gin.H{"error": "Password hashing error"})
@@ -126,11 +126,11 @@ func login(c *gin.Context) {
 	}
 
 	// Check if data are valid
-	if !auth2.IsValidEmail(req.Email) {
+	if !authorization.IsValidEmail(req.Email) {
 		c.JSON(400, gin.H{"error": "Invalid email"})
 		return
 	}
-	if !auth2.IsValidPassword(req.Password) {
+	if !authorization.IsValidPassword(req.Password) {
 		c.JSON(400, gin.H{"error": "Invalid password"})
 		return
 	}
@@ -163,7 +163,7 @@ func login(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "User is not active"})
 		return
 	}
-	if !jwtService.ComparePasswords(user.Password, req.Password) {
+	if !authorization.ComparePasswords(user.Password, req.Password) {
 		c.JSON(400, gin.H{"error": "Invalid password"})
 		return
 	}
@@ -181,7 +181,7 @@ func login(c *gin.Context) {
 }
 
 func refresh(c *gin.Context) {
-	var authToken string = c.Request.Header.Get("RefreshToken")
+	var authToken = c.Request.Header.Get("RefreshToken")
 
 	if authToken == "" {
 		c.JSON(400, gin.H{"error": "Invalid request body"})
@@ -253,7 +253,7 @@ func refresh(c *gin.Context) {
 }
 
 func auth(c *gin.Context) {
-	var authToken string = c.Request.Header.Get("Authorization")
+	var authToken = c.Request.Header.Get("Authorization")
 
 	if authToken == "" {
 		c.JSON(400, gin.H{"error": "Invalid request body"})

@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
-	"server-go/lib/auth"
+	"server-go/lib/authorization"
 	"server-go/lib/databaseService"
 	"server-go/lib/dotEnv"
 	"server-go/lib/ginUtils"
@@ -16,7 +16,7 @@ import (
 
 func InitChat(r *gin.RouterGroup) {
 	chatGroup := r.Group("/chat")
-	chatGroup.Use(auth.AuthRequired())
+	chatGroup.Use(authorization.AuthRequired())
 	{
 		chatGroup.POST("/SentPrompt", SentPrompt)
 		chatGroup.POST("/SentPromptTest", SentPromptTest)
@@ -95,7 +95,7 @@ func SentPrompt(r *gin.Context) {
 	}
 
 	//Request to AI_URL
-	aiURL := dotEnv.DotEnv.AI_URL
+	aiURL := dotEnv.DotEnv.AiUrl
 	reqBodyBytes, err := json.Marshal(payloadAI)
 	if err != nil {
 		log.Println("Error marshaling request body:", err)

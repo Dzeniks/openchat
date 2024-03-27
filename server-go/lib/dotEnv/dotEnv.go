@@ -15,7 +15,7 @@ type Env struct {
 	MongoDatabase      string
 	SecretKey          string
 	Production         bool
-	AI_URL             string
+	AiUrl              string
 }
 
 var DotEnv Env
@@ -55,7 +55,7 @@ func LoadDotEnv() error {
 		MongoDatabase:      os.Getenv("MONGO_DBNAME"),
 		SecretKey:          os.Getenv("SECRET_KEY"),
 		Production:         os.Getenv("PRODUCTION") == "true",
-		AI_URL:             os.Getenv("AI_URL"),
+		AiUrl:              os.Getenv("AI_URL"),
 	}
 	return nil
 }

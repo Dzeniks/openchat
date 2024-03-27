@@ -51,5 +51,8 @@ func main() {
 
 	routes.InitApiRouter(r)
 
-	r.Run()
+	err = r.Run()
+	if err != nil {
+		return
+	}
 }

@@ -1,7 +1,8 @@
-package auth
+package authorization
 
 import (
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"regexp"
 	"server-go/lib/jwtService"
@@ -48,6 +49,23 @@ func AuthRequired() gin.HandlerFunc {
 	}
 }
 
+func HashPassword(password string) (string, error) {
+	// Generate a salt and hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+func ComparePasswords(hashedPassword string, password string) bool {
+	// Compare the hashed password with the password provided by the user
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return false
+	}
+	return true
+}
 func IsValidEmail(email string) bool {
 	// Regular expression for a simple email validation
 	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`

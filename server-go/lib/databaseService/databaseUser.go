@@ -2,6 +2,7 @@ package databaseService
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -29,7 +30,7 @@ func GetUserByEmail(email *string, database *mongo.Database) (*User, error) {
 	var user User
 	filter := bson.M{"email": email}
 	err := database.Collection("users").FindOne(context.Background(), filter).Decode(&user)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(mongo.ErrNoDocuments, err) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -62,19 +63,24 @@ func GetAllChats(UserID string, database *mongo.Database) (*[]Chat, error) {
 	filter := bson.M{"owner_id": UserID}
 	ctx := context.Background()
 	var chats []Chat
-	chats_cursor, err := database.Collection("chats").Find(ctx, filter)
+	chatsCursor, err := database.Collection("chats").Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer chats_cursor.Close(ctx)
-	for chats_cursor.Next(ctx) {
+	defer func(chatsCursor *mongo.Cursor, ctx context.Context) {
+		err := chatsCursor.Close(ctx)
+		if err != nil {
+			return
+		}
+	}(chatsCursor, ctx)
+	for chatsCursor.Next(ctx) {
 		var chat Chat // Replace with your chat struct
-		err = chats_cursor.Decode(&chat)
+		err = chatsCursor.Decode(&chat)
 		if err == nil {
 			chats = append(chats, chat)
 		}
 	}
-	if err = chats_cursor.Err(); err != nil {
+	if err = chatsCursor.Err(); err != nil {
 		return nil, err
 	}
 	return &chats, nil
