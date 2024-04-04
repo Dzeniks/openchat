@@ -53,9 +53,6 @@
 	let isDisabled = false;
 	const postPrompt = () => {
 		isDisabled = true;
-
-
-
 		DATA = [
 			...DATA,
 			{

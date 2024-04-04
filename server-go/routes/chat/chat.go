@@ -20,7 +20,6 @@ func InitChat(r *gin.RouterGroup) {
 	{
 		chatGroup.POST("/SentPrompt", SentPrompt)
 		chatGroup.POST("/SentPromptTest", SentPromptTest)
-		//chatGroup.GET("/Chat")
 		chatGroup.POST("/CreateChat", CreateChat)
 	}
 }
@@ -53,12 +52,12 @@ func addMessageToChatParallel(message databaseService.Message,
 }
 
 func SentPrompt(r *gin.Context) {
-
 	var payloadUser SentPromptRequest
 	log.Println(r.Request.Body)
 	err := json.NewDecoder(r.Request.Body).Decode(&payloadUser)
 	if err != nil {
 		log.Println("Error decoding request body:", err)
+		r.JSON(400, gin.H{"error": "Invalid request body"})
 		return
 	}
 	accessTokenString := r.GetHeader("Authorization")
@@ -99,16 +98,33 @@ func SentPrompt(r *gin.Context) {
 	reqBodyBytes, err := json.Marshal(payloadAI)
 	if err != nil {
 		log.Println("Error marshaling request body:", err)
+		r.JSON(500, gin.H{"error": "Error marshaling request body"})
 		return
 	}
-	resp, err := http.Post(aiURL, "application/json", bytes.NewBuffer(reqBodyBytes))
+
+	// Create a new request with POST method, URL, and request body
+	req, err := http.NewRequest("POST", aiURL, bytes.NewBuffer(reqBodyBytes))
 	if err != nil {
-		r.JSON(500, gin.H{"error": "Error making request to AI_URL"})
+		log.Println("Error creating request:", err)
+		r.JSON(500, gin.H{"error": "Error creating request"})
 		return
 	}
-	log.Print(resp.StatusCode)
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("authorization", dotEnv.DotEnv.AiAuthKey)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Error sending request:", err)
+		r.JSON(500, gin.H{"error": "Error sending request"})
+		return
+	}
+
 	if resp.StatusCode != 200 {
-		r.JSON(resp.StatusCode, gin.H{"error": "Error"})
+		log.Println("Error response from AI:", resp.Status)
+		r.JSON(resp.StatusCode, gin.H{"error": resp.Status})
 		return
 	}
 
@@ -129,6 +145,7 @@ func SentPrompt(r *gin.Context) {
 	go addMessageToChatParallel(message, payloadUser.ChatID, database)
 	go addMessageToChatParallel(AImessage, payloadUser.ChatID, database)
 
+	log.Println("Response from AI:", response.Output)
 	r.JSON(200, gin.H{
 		"message": "OK",
 		"output":  response.Output,

@@ -34,8 +34,8 @@ func main() {
 	}(logFile)
 	log.Printf("Log file created: %s", logFile.Name())
 
-	if env.DotEnv.Production == true {
-		log.SetOutput(logFile)
+	if gin.Mode() == gin.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
 	}
 
 	//goland:noinspection Annotator
@@ -50,9 +50,20 @@ func main() {
 	log.Println(secretKey.GetSecretKey())
 
 	routes.InitApiRouter(r)
+	port := env.DotEnv.HostPort
+	if port == "" {
+		port = "8080"
+	}
 
-	err = r.Run()
+	r.ForwardedByClientIP = true
+	err = r.SetTrustedProxies([]string{"127.0.0.1", "192.168.1.2", "10.0.0.0/8"})
 	if err != nil {
 		return
 	}
+
+	err = r.Run(":" + port)
+	if err != nil {
+		return
+	}
+
 }

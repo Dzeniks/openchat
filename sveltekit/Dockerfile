@@ -21,3 +21,4 @@ EXPOSE 3000
 
 # Start the SvelteKit app
 CMD ["node", "build/index.js"]
+

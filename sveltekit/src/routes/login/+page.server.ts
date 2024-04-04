@@ -2,8 +2,6 @@ import type { Actions } from './$types';
 import type { AuthResponse, AuthErrorResponse } from '$lib/auth/auth';
 import { login, register } from '$lib/auth/auth';
 import { redirect } from '@sveltejs/kit';
-import { goto } from '$app/navigation';
-// import { redirect } from '@sveltejs/kit';
 
 export const actions = {
     	login: async ({cookies, request}) => {
@@ -11,7 +9,7 @@ export const actions = {
             const email = form.get('email') as string;
             const password = form.get('password') as string;
             if (!email || !password) {
-                return;
+                return {status: 400, error: 'No email or password', message: "Failed to register"} as AuthErrorResponse;
             }
             const data: AuthResponse | AuthErrorResponse | undefined = await login(email, password);
             if (data) {
@@ -61,6 +59,6 @@ export const actions = {
                     throw redirect(301, `/login?error=${data.error}&message=${data.message}`)
                 }
             }
-            throw await goto('/chat')
+            throw redirect(302, '/chat')
         },
 } satisfies Actions;

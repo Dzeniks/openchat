@@ -11,6 +11,20 @@ services:
     networks:
       - openchat-network
 
+#  python-api:
+#    build: ./python-api
+#    ports:
+#      - "8000:8000"
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#          - driver: nvidia
+#            count: 1
+#            capabilities: [gpu]
+#    networks:
+#      - openchat-network
+
   server-go:
     build: ./server-go
     ports:
@@ -18,6 +32,10 @@ services:
     environment:
       - SECRET_KEY=value
       - PRODUCTION=false
+      - MONGO_CONNECTION_STRING=mongodb://mongo-db:27017/openchat
+      - MONGO_DB_NAME=openchat
+      - AI_URL=http://localhost:8000/runsync
+
     networks:
       - openchat-network
 
@@ -27,7 +45,9 @@ services:
       - "3000:3000"
     environment:
       - SECRET_KEY=value
+      - HOST_PORT=3000
       - BACKEND_URL=http://server-go:8080
+      - ORIGIN=http://localhost:3000
     networks:
       - openchat-network
 

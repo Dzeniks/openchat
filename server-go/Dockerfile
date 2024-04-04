@@ -1,23 +1,24 @@
-# Use the official Go image as the base image
-FROM golang:1.21.5-bullseye
+# Start with a base image containing the Go runtime
+FROM golang:1.21.5-bullseye AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Go module files
 COPY go.mod go.sum ./
 
-# Download and install the Go dependencies
 RUN go mod download
 
-# Copy the rest of the application source code
 COPY . .
 
-# Build the Go application
-# RUN go build -o server .
+RUN go build -o main .
 
-# Expose the port on which the server will listen
-EXPOSE 8080
+FROM golang:1.21.5-bullseye
 
-# Set the command to run the server when the container starts
-CMD ["go", "run", "main.go"]
+WORKDIR /app
+
+COPY --from=builder /app/main .
+COPY --from=builder /app/.env .
+
+ARG PORT
+EXPOSE $PORT
+
+CMD ["./main"]

@@ -22,14 +22,19 @@ export async function login(email: string, password: string) {
             const json = await response.json();
             return json as AuthResponse;
         } else {
-            // Server returned an error
-            const errorResponse = await response.json();
-            return {status: response.status, error: errorResponse.error, message: "Failed to login"} as AuthErrorResponse;
+            try {
+                const json = await response.json();
+                if (json.error) {
+                    return {status: response.status, error: json.error, message: "Failed to login"} as AuthErrorResponse;
+                }
+            }
+            catch {
+                return {status: response.status, error: response.statusText, message: "Failed to login"} as AuthErrorResponse;
+            }
+            return {status: response.status, error: response.statusText, message: "Failed to login"} as AuthErrorResponse;
         }
     } catch(error){
-        console.error('Failed to login:', error);
-        // throw new Error('Failed to login');
-        return {error: error, message: "Failed to login"} as AuthErrorResponse;
+        return {status:500, "error": error.statusText, message: "Failed to login"} as AuthErrorResponse;
     }
 }
 
@@ -47,9 +52,7 @@ export async function register(email: string, password: string) {
             return json as AuthResponse;
         }
         else {
-        // Server returned an error
-        const errorResponse = await response.json();
-        return {error: errorResponse.error, message: "Failed to register"} as AuthErrorResponse;
+        return {status: response.status, error: response.statusText, message: "Failed to register"} as AuthErrorResponse;
     } 
     } catch(error){
         return {error: error, message: "Failed to register"} as AuthErrorResponse;
@@ -69,13 +72,11 @@ export async function refresh(refreshToken: string) {
             const json = await response.json();
             return json as AuthResponse;
         } else {
-            // Server returned an error
-            const errorResponse = await response.json();
-            throw new Error(errorResponse.message || 'Failed to login');
+            return {status: response.status, error: response.statusText, message: "Failed to refresh token"} as AuthErrorResponse;
         }
     } catch (error) {
         // Handle any errors here
-        console.error(error);
+        console.error("Error", error);
         return {error: error, message: "Failed to refresh token"} as AuthErrorResponse;
     }
 }

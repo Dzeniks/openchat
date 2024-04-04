@@ -19,6 +19,7 @@ func AuthRequired() gin.HandlerFunc {
 		log.Print("authToken: ", authToken)
 		if authToken == "" {
 			c.JSON(401, gin.H{"error": "Auth Token required"})
+			return
 		}
 		if authToken == "" {
 			c.JSON(400, gin.H{"error": "Invalid request body"})

@@ -16,10 +16,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				'Authorization': `${accessToken}`
 			},
 		});
-		// console.log(response);
 		if (!response.ok) {
-			const errorResponse = await response.json();
-			return json({ error: errorResponse.error });
+			return json({ error: response.statusText});
 		}
 		const result = await response.json();
 		return json(result);

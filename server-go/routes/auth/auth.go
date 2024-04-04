@@ -15,7 +15,7 @@ import (
 
 // InitAuth RegisterRoutes registers routes for the authorization package.
 func InitAuth(r *gin.RouterGroup) {
-	authGroup := r.Group("/authorization")
+	authGroup := r.Group("/auth")
 	{
 		authGroup.POST("/", auth)
 		authGroup.POST("/login", login)
@@ -68,7 +68,6 @@ func register(c *gin.Context) {
 	database := databaseService.GetDatabase(client)
 	user, err := databaseService.GetUserByEmail(&req.Email, database)
 	if err != nil {
-		log.Error("Database error")
 		c.JSON(500, gin.H{"error": "Database error"})
 		return
 	}

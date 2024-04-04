@@ -14,14 +14,14 @@ type Env struct {
 	MongoPassword      string
 	MongoDatabase      string
 	SecretKey          string
-	Production         bool
 	AiUrl              string
+	AiAuthKey          string
 }
 
 var DotEnv Env
 
 var requiredEnv = []string{"HOST_PORT", "MONGO_CONNECTION_STRING", "MONGO_USERNAME", "MONGO_PASSWORD", "MONGO_DBNAME",
-	"SECRET_KEY", "PRODUCTION", "AI_URL"}
+	"SECRET_KEY", "AI_URL", "AI_AUTH_KEY"}
 
 func checkDotEnv() error {
 	err := godotenv.Load()
@@ -54,8 +54,8 @@ func LoadDotEnv() error {
 		MongoPassword:      os.Getenv("MONGO_PASSWORD"),
 		MongoDatabase:      os.Getenv("MONGO_DBNAME"),
 		SecretKey:          os.Getenv("SECRET_KEY"),
-		Production:         os.Getenv("PRODUCTION") == "true",
 		AiUrl:              os.Getenv("AI_URL"),
+		AiAuthKey:          os.Getenv("AI_AUTH_KEY"),
 	}
 	return nil
 }
