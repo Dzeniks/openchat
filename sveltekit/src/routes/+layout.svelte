@@ -9,7 +9,7 @@
 <Header/>
 
 {#key data.pathname}
-		<main transition:fade="{{delay: 50, duration: 1000}}">
+		<main transition:fade="{{duration: 200}}">
 			<slot />
     </main>
 {/key}
