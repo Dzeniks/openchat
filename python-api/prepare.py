@@ -14,6 +14,6 @@ model_name = os.getenv("MODEL_NAME")
 if model_name is None:
     raise Exception("MODEL_NAME environment variable is not set")
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=".cache")
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16,
-                                             device_map="auto")
+                                             device_map="auto", cache_dir=".cache")

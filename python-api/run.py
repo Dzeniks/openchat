@@ -1,8 +1,9 @@
 import os
+
 import dotenv
+import runpod
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import runpod
 
 from utils import get_model_params, create_prompt, tokenize_prompt
 
@@ -21,11 +22,11 @@ nf4_config = BitsAndBytesConfig(
     bnb_4bit_quant_type="nf4"
 )
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=".cache")
 model = AutoModelForCausalLM.from_pretrained(model_name,
                                              torch_dtype=torch.float16,
                                              quantization_config=nf4_config,
-                                             device_map="auto")
+                                             device_map="auto", cache_dir=".cache")
 
 
 def run_model(job):
@@ -35,6 +36,7 @@ def run_model(job):
             enable_mem_efficient=False
     ):
         prompt = create_prompt(job["input"]["prompts"])
+        print(prompt)
         inputs = tokenize_prompt(tokenizer, prompt, DEVICE)
         max_new_tokens, repetition_penalty = get_model_params(job)
         with torch.no_grad():

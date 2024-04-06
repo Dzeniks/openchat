@@ -34,10 +34,6 @@ func main() {
 	}(logFile)
 	log.Printf("Log file created: %s", logFile.Name())
 
-	if gin.Mode() == gin.ReleaseMode {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
 	//goland:noinspection Annotator
 	err = env.LoadDotEnv()
 	if err != nil {

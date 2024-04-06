@@ -1,5 +1,6 @@
 import os
 import dotenv
+
 dotenv.load_dotenv()
 
 model_name = os.environ.get("MODEL_NAME")

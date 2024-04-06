@@ -34,7 +34,7 @@ export async function login(email: string, password: string) {
             return {status: response.status, error: response.statusText, message: "Failed to login"} as AuthErrorResponse;
         }
     } catch(error){
-        return {status:500, "error": error.statusText, message: "Failed to login"} as AuthErrorResponse;
+        return {status:500, "error": "500", message: "Failed to login"} as AuthErrorResponse;
     }
 }
 
@@ -75,8 +75,16 @@ export async function refresh(refreshToken: string) {
             return {status: response.status, error: response.statusText, message: "Failed to refresh token"} as AuthErrorResponse;
         }
     } catch (error) {
-        // Handle any errors here
-        console.error("Error", error);
         return {error: error, message: "Failed to refresh token"} as AuthErrorResponse;
     }
+}
+
+export async function auth(accessToken: string): Promise<boolean> {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/auth/`, {
+        method: 'POST',
+        headers: {
+            Authorization: `${accessToken}`
+        }
+    });
+    return response.ok;
 }

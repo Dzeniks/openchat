@@ -1,10 +1,10 @@
 import { type Handle, redirect } from '@sveltejs/kit';
-import { type AuthErrorResponse, type AuthResponse, refresh } from '$lib/auth/auth';
+import { type AuthErrorResponse, type AuthResponse, refresh, auth } from '$lib/auth/auth';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const authorizedURLs = ['/chat', '/admin'];
+const authorizedURLs = ['/chat/'];
 
 export const handle: Handle = async ({ event, resolve }) => {
     const { pathname } = event.url;
@@ -12,43 +12,21 @@ export const handle: Handle = async ({ event, resolve }) => {
     const refreshToken = event.cookies.get('refreshToken');
     let hasPrivilege = false;
 
-    if (authorizedURLs.includes(pathname)) {
+    // Check if in patname is some part of authorizedURL
+    if (pathname.includes('/chat')) {
         if (accessToken){
             hasPrivilege = await auth(accessToken);
         }
         if (accessToken && refreshToken) {
-            const data : AuthResponse | AuthErrorResponse | undefined = await refresh(refreshToken)
-            if (data){
-                if ('accessToken' in data && 'refreshToken' in data) {
-                    event.cookies.set('accessToken', data.accessToken, {
-                        httpOnly: true,
-                        maxAge: 3600,
-                        path: '/',
-                    });
-                    event.cookies.set('refreshToken', data.refreshToken, {
-                        httpOnly: true,
-                        maxAge: 3600 * 24 * 30,
-                        path: '/',
-                    });
-
-                    hasPrivilege = await auth(data.accessToken);
-                }
-            }
+            // const data : AuthResponse | AuthErrorResponse | undefined = await refresh(refreshToken)
+            hasPrivilege = await auth(accessToken);
         }
         if (!hasPrivilege) {
-            redirect(302, '/login')
+            redirect(302, '/login');
         }
     }
     return resolve(event);
 };
 
-async function auth(accessToken: string): Promise<boolean> {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/auth/`, {
-        method: 'POST',
-        headers: {
-            Authorization: `${accessToken}`
-        }
-    });
-    return response.ok;
-}
+
 

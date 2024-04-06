@@ -19,5 +19,4 @@ func InitApiRouter(r *gin.Engine) {
 
 	auth.InitAuth(api)
 	chat.InitChat(api)
-
 }

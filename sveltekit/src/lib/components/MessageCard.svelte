@@ -2,40 +2,35 @@
     import { fade } from "svelte/transition";
     export var owner: string;
     export var prompt: string;
-    export var role: string;
 </script>
 
-<div class="prompt" transition:fade="{{ duration: 600 }}">
-    <h3  class="{role === 'user' ? 'right' : 'left'}">{owner}</h3>
+<div class="prompt" transition:fade="{{ duration: 500 }}">
+    <h3>{owner === "AI" ? owner : "User"}</h3>
     <span>
         {prompt}
     </span>
-    <!-- <p class="{role === 'user' ? 'right' : 'left'}"><small>{date}</small></p> -->
 </div>
 
 
 <style>
     
-    
+    span {
+        text-align: right;
+    }
+
     .prompt {
         padding: 1rem;
-        width: 60vw;
+        width: 90%;
         background-color: #f1f1f1;
         border-radius: 1rem;
     }
 
-    .right {
-        text-align: right;
-    }
     
-    .left {
+    h3 {
         text-align: left;
     }
 
-    span {
-        text-align: center;
-        
-    }
+
 
     @media (max-width: 768px) {
         .prompt {

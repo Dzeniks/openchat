@@ -16,7 +16,6 @@ type User struct {
 }
 
 type Message struct {
-	//MessageID string    `bson:"_id"`
 	SenderID string    `bson:"sender_id"`
 	Content  string    `bson:"content"`
 	SentAt   time.Time `bson:"sent_at"`

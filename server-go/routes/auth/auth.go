@@ -30,9 +30,6 @@ type EmailRequest struct {
 }
 
 func register(c *gin.Context) {
-	log.Print("register")
-	// Define a struct to hold the request body
-
 	// Bind the request body to the RegisterRequest struct
 	var req EmailRequest
 	if err := c.BindJSON(&req); err != nil {
@@ -113,7 +110,6 @@ func register(c *gin.Context) {
 }
 
 func login(c *gin.Context) {
-	log.Print("login")
 	var req EmailRequest
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": "Invalid request body"})
@@ -269,45 +265,45 @@ func auth(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid token"})
 		return
 	}
+	//
+	//// Check claims
+	//claims, err := jwtService.ExtractClaims(jwtToken)
+	//if err != nil {
+	//	c.JSON(500, gin.H{"error": "JWT parsing error"})
+	//	return
+	//}
+	//if claims.Type != "access" || claims.UserID == "" {
+	//	c.JSON(400, gin.H{"error": "Invalid token"})
+	//	return
+	//}
 
-	// Check claims
-	claims, err := jwtService.ExtractClaims(jwtToken)
-	if err != nil {
-		c.JSON(500, gin.H{"error": "JWT parsing error"})
-		return
-	}
-	if claims.Type != "access" || claims.UserID == "" {
-		c.JSON(400, gin.H{"error": "Invalid token"})
-		return
-	}
-
-	// Connect to the database
-	client, err := databaseService.GetClient()
-	if err != nil {
-		c.JSON(500, gin.H{"error": "Database error"})
-		return
-	}
-	ctx := context.Background()
-	defer func(client *mongo.Client, ctx context.Context) {
-		err := client.Disconnect(ctx)
-		if err != nil {
-		}
-	}(client, ctx)
-	database := databaseService.GetDatabase(client)
-
-	// Check if the user exists and is active
-	user, err := databaseService.GetUserByID(&claims.UserID, database)
-	if err != nil {
-		c.JSON(500, gin.H{"error": "Database error"})
-		return
-	}
-	if user == nil {
-		c.JSON(400, gin.H{"error": "User does not exist"})
-		return
-	}
-	if !user.Active {
-		c.JSON(400, gin.H{"error": "User is not active"})
-		return
-	}
+	//// Connect to the database
+	//client, err := databaseService.GetClient()
+	//if err != nil {
+	//	c.JSON(500, gin.H{"error": "Database error"})
+	//	return
+	//}
+	//ctx := context.Background()
+	//defer func(client *mongo.Client, ctx context.Context) {
+	//	err := client.Disconnect(ctx)
+	//	if err != nil {
+	//	}
+	//}(client, ctx)
+	//database := databaseService.GetDatabase(client)
+	//
+	//// Check if the user exists and is active
+	//user, err := databaseService.GetUserByID(&claims.UserID, database)
+	//if err != nil {
+	//	c.JSON(500, gin.H{"error": "Database error"})
+	//	return
+	//}
+	//if user == nil {
+	//	c.JSON(400, gin.H{"error": "User does not exist"})
+	//	return
+	//}
+	//if !user.Active {
+	//	c.JSON(400, gin.H{"error": "User is not active"})
+	//	return
+	//}
 	c.JSON(200, gin.H{"message": "Auth successful"})
 }

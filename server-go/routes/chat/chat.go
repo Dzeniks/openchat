@@ -11,6 +11,7 @@ import (
 	"server-go/lib/databaseService"
 	"server-go/lib/dotEnv"
 	"server-go/lib/ginUtils"
+	"strings"
 	"time"
 )
 
@@ -21,11 +22,13 @@ func InitChat(r *gin.RouterGroup) {
 		chatGroup.POST("/SentPrompt", SentPrompt)
 		chatGroup.POST("/SentPromptTest", SentPromptTest)
 		chatGroup.POST("/CreateChat", CreateChat)
+		chatGroup.POST("/GetChatIdsOfUser", GetChatIdsOfUser)
+		chatGroup.POST("/GetChat", GetChat)
 	}
 }
 
 type GetChatRequest struct {
-	ChatId string
+	ChatId string `json:"chat_id"`
 }
 
 type SentPromptRequest struct {
@@ -35,7 +38,7 @@ type SentPromptRequest struct {
 
 type AIRequest struct {
 	Input struct {
-		Prompts []string `json:"prompts"`
+		Prompts []databaseService.Message `json:"prompts"`
 	} `json:"input"`
 }
 
@@ -48,56 +51,53 @@ func addMessageToChatParallel(message databaseService.Message,
 	err := databaseService.AddMessageToChat(message, chatID, database)
 	if err != nil {
 		log.Print(err)
+		log.Print("ChatID in GOTO: ", chatID)
 	}
 }
 
 func SentPrompt(r *gin.Context) {
+	// Get the request body
 	var payloadUser SentPromptRequest
-	log.Println(r.Request.Body)
 	err := json.NewDecoder(r.Request.Body).Decode(&payloadUser)
 	if err != nil {
-		log.Println("Error decoding request body:", err)
 		r.JSON(400, gin.H{"error": "Invalid request body"})
 		return
 	}
+
+	log.Print("Prompt: ", payloadUser.Prompt)
+	log.Print("ChatID: ", payloadUser.ChatID)
+
 	accessTokenString := r.GetHeader("Authorization")
 	claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
 
 	database := ginUtils.GetDatabase(r)
-
 	var message = databaseService.Message{
-		//ChatID
 		SenderID: claims.UserID,
 		Content:  payloadUser.Prompt,
 		SentAt:   time.Now(),
 	}
 
-	//Get chat
 	chatID := payloadUser.ChatID
 	chat, err := databaseService.GetChatByID(chatID, database)
 	if err != nil {
-		r.JSON(500, gin.H{"error": err.Error()})
+		log.Print(err)
+		log.Print("ChatID: ", chatID)
+		r.JSON(500, gin.H{"error": err})
 		return
 	}
-	chat.Messages = append(chat.Messages, message)
-	var chatMessages []string
-	for _, message := range chat.Messages {
-		chatMessages = append(chatMessages, message.Content)
-	}
 
-	payloadAI := AIRequest{
+	var aiRequest AIRequest = AIRequest{
 		Input: struct {
-			Prompts []string `json:"prompts"`
+			Prompts []databaseService.Message `json:"prompts"`
 		}{
-			Prompts: chatMessages,
+			Prompts: append(chat.Messages, message),
 		},
 	}
 
-	//Request to AI_URL
 	aiURL := dotEnv.DotEnv.AiUrl
-	reqBodyBytes, err := json.Marshal(payloadAI)
+	reqBodyBytes, err := json.Marshal(aiRequest)
 	if err != nil {
-		log.Println("Error marshaling request body:", err)
+		log.Print(err)
 		r.JSON(500, gin.H{"error": "Error marshaling request body"})
 		return
 	}
@@ -105,7 +105,7 @@ func SentPrompt(r *gin.Context) {
 	// Create a new request with POST method, URL, and request body
 	req, err := http.NewRequest("POST", aiURL, bytes.NewBuffer(reqBodyBytes))
 	if err != nil {
-		log.Println("Error creating request:", err)
+		log.Print(err)
 		r.JSON(500, gin.H{"error": "Error creating request"})
 		return
 	}
@@ -117,13 +117,15 @@ func SentPrompt(r *gin.Context) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("Error sending request:", err)
+		log.Print(err)
 		r.JSON(500, gin.H{"error": "Error sending request"})
 		return
 	}
 
 	if resp.StatusCode != 200 {
-		log.Println("Error response from AI:", resp.Status)
+		log.Print(resp.Status)
+		log.Print(resp.StatusCode)
+
 		r.JSON(resp.StatusCode, gin.H{"error": resp.Status})
 		return
 	}
@@ -131,13 +133,13 @@ func SentPrompt(r *gin.Context) {
 	var response AIResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		log.Println("Error decoding response body:", err)
+		log.Print(err)
 		r.JSON(500, gin.H{"error": "Error decoding response from AI"})
 		return
 	}
 
 	var AImessage = databaseService.Message{
-		SenderID: "0",
+		SenderID: "AI",
 		Content:  response.Output,
 		SentAt:   time.Now(),
 	}
@@ -145,12 +147,82 @@ func SentPrompt(r *gin.Context) {
 	go addMessageToChatParallel(message, payloadUser.ChatID, database)
 	go addMessageToChatParallel(AImessage, payloadUser.ChatID, database)
 
-	log.Println("Response from AI:", response.Output)
 	r.JSON(200, gin.H{
 		"message": "OK",
 		"output":  response.Output,
 	})
+}
 
+func GetChatIdsOfUser(r *gin.Context) {
+	accessTokenString := r.GetHeader("Authorization")
+	claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
+	database := ginUtils.GetDatabase(r)
+	// Get All chat
+	chats, err := databaseService.GetAllChats(claims.UserID, database)
+	if err != nil {
+		log.Print(err)
+		r.JSON(500, gin.H{"error": "Error getting chats"})
+		return
+	}
+
+	// Extract chatID from chat
+	var chatIDs []string
+	for _, chat := range *chats {
+		if len(chat.Messages) == 0 {
+			continue
+		}
+		chatIDs = append(chatIDs, chat.ChatID)
+	}
+
+	var chatIDsDate []time.Time
+	for _, chat := range *chats {
+		if len(chat.Messages) == 0 {
+			continue
+		}
+		chatIDsDate = append(chatIDsDate, chat.Messages[0].SentAt)
+	}
+
+	r.JSON(200, gin.H{
+		"chat_ids": chatIDs,
+		"dates":    chatIDsDate,
+	})
+}
+
+func GetChat(r *gin.Context) {
+	//accessTokenString := r.GetHeader("Authorization")
+	//claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
+	//userID := claims.UserID
+	database := ginUtils.GetDatabase(r)
+	var payload GetChatRequest
+	err := json.NewDecoder(r.Request.Body).Decode(&payload)
+	if err != nil {
+		r.JSON(400, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// split ChatID by _
+	chatID := strings.Split(payload.ChatId, "_")
+	if len(chatID) != 2 {
+		r.JSON(400, gin.H{"error": "Invalid ChatID"})
+		return
+	}
+
+	// Temporary check if user is in chat
+	//if chatID[0] != userID {
+	//	r.JSON(400, gin.H{"error": "Invalid ChatID"})
+	//	return
+	//}
+
+	chat, err := databaseService.GetChatByID(payload.ChatId, database)
+	if err != nil {
+		log.Print(err)
+		//r.Error(err)
+		r.JSON(404, gin.H{"error": err})
+		return
+	}
+	r.JSON(200, gin.H{
+		"chat": chat,
+	})
 }
 
 func SentPromptTest(r *gin.Context) {
@@ -165,16 +237,14 @@ func SentPromptTest(r *gin.Context) {
 func CreateChat(r *gin.Context) {
 	accessTokenString := r.GetHeader("Authorization")
 	claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
-
 	database := ginUtils.GetDatabase(r)
-
 	// Get All chat
 	chats, err := databaseService.GetAllChats(claims.UserID, database)
 	if err != nil {
+		log.Print(err)
 		r.JSON(500, gin.H{"error": "Error getting chats"})
 		return
 	}
-
 	//If exists chat with no messages return chatID
 	for _, chat := range *chats {
 		if len(chat.Messages) == 0 {
@@ -183,16 +253,15 @@ func CreateChat(r *gin.Context) {
 			return
 		}
 	}
-
 	//Create list with element claims.UserID
 	var userIds []string
 	userIds = append(userIds, claims.UserID)
 
 	chatID, err := databaseService.CreateChat(claims.UserID, userIds, database)
 	if err != nil {
+		log.Print(err)
 		r.JSON(500, gin.H{"error": "Error creating chat"})
 		return
 	}
-	log.Print("chatID: ", *chatID)
 	r.JSON(200, gin.H{"chat_id": *chatID})
 }

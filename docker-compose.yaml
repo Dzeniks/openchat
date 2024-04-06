@@ -1,29 +1,12 @@
 version: "3"
 
 services:
-# For local development we need to run python-api without docker
-#  python-api:
-#    build: ./python-api
   mongo-db:
     build: ./mongo
     ports:
       - "27017:27017"
     networks:
       - openchat-network
-
-#  python-api:
-#    build: ./python-api
-#    ports:
-#      - "8000:8000"
-#    deploy:
-#      resources:
-#        reservations:
-#          devices:
-#          - driver: nvidia
-#            count: 1
-#            capabilities: [gpu]
-#    networks:
-#      - openchat-network
 
   server-go:
     build: ./server-go
@@ -35,6 +18,7 @@ services:
       - MONGO_CONNECTION_STRING=mongodb://mongo-db:27017/openchat
       - MONGO_DB_NAME=openchat
       - AI_URL=http://localhost:8000/runsync
+      - AI_AUTH_KEY=secret
 
     networks:
       - openchat-network

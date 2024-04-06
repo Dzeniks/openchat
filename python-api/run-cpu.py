@@ -1,8 +1,9 @@
 import os
+
 import dotenv
+import runpod
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import runpod
 
 from utils import get_model_params, create_prompt, tokenize_prompt
 

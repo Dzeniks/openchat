@@ -12,6 +12,7 @@ sveltekit/build
 sveltekit/.svelte-kit
 sveltekit/package
 .env
+.cache
 .env.*
 !.env.example
 vite.config.js.timestamp-*

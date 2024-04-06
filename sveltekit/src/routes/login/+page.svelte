@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-    import { slide, fade } from 'svelte/transition';
+    import { slide } from 'svelte/transition';
 
   let email = '';
   let password = '';
@@ -9,7 +9,7 @@
 
 	onMount(() => {
 		console.log('onMount');
-    console.log(IsLogin);
+        console.log(IsLogin);
 		const urlSearchParams = new URLSearchParams(window.location.search);
 
 		// Access individual parameters

@@ -1,29 +1,20 @@
 # Builder stage
-FROM python:3.11.7-bookworm AS builder
+FROM python:3.11.7-slim-bookworm AS builder
 
 WORKDIR /app
-COPY . .
-COPY .env .env
+COPY run.py run.py
+COPY utils.py utils.py
 COPY settings.py settings.py
 COPY requirements.txt requirements.txt
+COPY .cache .cache
 
-# Install dependencies and prepare environment
-RUN python -m venv venv
-RUN /bin/bash -c "source venv/bin/activate \
-    && pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt \
-    && python prepare.py"
+COPY test_input.json test_input.json
+COPY .env .env
 
-# Final image
-FROM python:3.11.7-slim-bookworm
 
-WORKDIR /app
-
-COPY --from=builder /app /app
-COPY --from=builder /root/.cache/huggingface/hub /root/.cache/huggingface/hub
-COPY --from=builder /app/.env .env
-COPY --from=builder /app/settings.py settings.py
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["./venv/bin/python", "-u", "run.py"]
+CMD ["python", "-u", "run.py"]

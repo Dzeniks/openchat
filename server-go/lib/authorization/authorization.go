@@ -3,7 +3,6 @@ package authorization
 import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"regexp"
 	"server-go/lib/jwtService"
 )
@@ -16,7 +15,6 @@ func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Check if authenticated
 		authToken := c.GetHeader("Authorization")
-		log.Print("authToken: ", authToken)
 		if authToken == "" {
 			c.JSON(401, gin.H{"error": "Auth Token required"})
 			return
