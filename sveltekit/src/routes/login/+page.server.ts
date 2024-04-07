@@ -24,6 +24,7 @@ export const actions = {
                     cookies.set('accessToken', data.accessToken, {
                         httpOnly: true,
                         maxAge: accessTokenMaxAge,
+                        secure: false,
                         path: '/',
                     });
 
@@ -32,6 +33,7 @@ export const actions = {
                     cookies.set('refreshToken', data.refreshToken, {
                         httpOnly: true,
                         maxAge: refreshTokenMaxAge,
+                        secure: false,
                         path: '/',
                     });
             
@@ -56,11 +58,13 @@ export const actions = {
                     cookies.set('accessToken', data.accessToken, {
                         httpOnly: true,
                         maxAge: accessTokenMaxAge,
+                        secure: false,
                         path: '/',
                     });
                     cookies.set('refreshToken', data.refreshToken, {
                         httpOnly: true,
                         maxAge: refreshTokenMaxAge,
+                        secure: false,
                         path: '/',
                     });
                 }

@@ -1,6 +1,5 @@
 import { _accessTokenRefreshTime, _refreshTokenRefreshTime } from '$lib/stores.js';
 import { refresh, type AuthErrorResponse, type AuthResponse } from '$lib/auth/auth';
-import { onDestroy } from 'svelte';
 
 export const trailingSlash = 'always';
 export const ssr = false;
@@ -42,6 +41,7 @@ export const load = async({ url, cookies }) => {
 				cookies.set('accessToken', data.accessToken, {
 					httpOnly: true,
 					maxAge: accessTokenMaxAge,
+					secure: false,
 					path: '/',
 				});
 
@@ -50,6 +50,7 @@ export const load = async({ url, cookies }) => {
 				cookies.set('refreshToken', data.refreshToken, {
 					httpOnly: true,
 					maxAge: refreshTokenMaxAge,
+					secure: false,
 					path: '/',
 				});
 
