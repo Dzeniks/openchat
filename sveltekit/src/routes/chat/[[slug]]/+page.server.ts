@@ -13,7 +13,8 @@ export const load: PageServerLoad = async({ fetch, params, cookies }) => {
     }
 
     const createChat = async() => {
-
+        console.log('create chat');
+        console.log(accessToken);
         const response = await fetch('http://localhost:3000/api/chat/create', {
             method: 'POST',
             headers: {
