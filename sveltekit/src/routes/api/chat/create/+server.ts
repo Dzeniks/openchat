@@ -17,6 +17,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				'Authorization': `${accessToken}`
 			},
 		});
+		console.log("Api Create Chat Response: ", response);
 		if (!response.ok) {
 			return json({ error: response.statusText});
 		}

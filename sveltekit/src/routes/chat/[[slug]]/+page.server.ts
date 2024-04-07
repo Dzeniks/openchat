@@ -21,6 +21,7 @@ export const load: PageServerLoad = async({ fetch, params, cookies }) => {
                 'Content-Type': 'application/json',
                 'Authorization': accessToken
             }})
+            console.log(response);
             if (response.ok) {
             const data = await response.json();
             redirect(302, `/chat/${data.chat_id}`);

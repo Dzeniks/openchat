@@ -263,5 +263,6 @@ func CreateChat(r *gin.Context) {
 		r.JSON(500, gin.H{"error": "Error creating chat"})
 		return
 	}
+	log.Print("ChatID: ", *chatID)
 	r.JSON(200, gin.H{"chat_id": *chatID})
 }
