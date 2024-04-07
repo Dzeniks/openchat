@@ -2,23 +2,29 @@ import { error, redirect, type NumericRange } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { Chat } from '$lib/types';
 
+const PORT = process.env.PORT;
+
 export const load: PageServerLoad = async({ fetch, params, cookies }) => {
 
     const createChat = async() => {
-        const response = await fetch('http://localhost:3000/api/chat/create', {
+        const response = await fetch(`http://localhost:${PORT}/api/chat/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': cookies.get('accessToken') as string
             }})
-            if (response.ok) {
+        if (response.ok) {
             const data = await response.json();
-            redirect(302, `/chat/${data.chat_id}`);
+            if (data.chat_id === undefined || data.chat_id === null) {
+                return redirect(302, '/chat');
+            }
+            return redirect(302, `/chat/${data.chat_id}`);
         }
     }
     
     const getChatByID = async(id: string) => {
-		const response = await fetch('http://localhost:3000/api/chat/get', {
+
+		const response = await fetch(`http://localhost:${PORT}/api/chat/get`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -35,7 +41,7 @@ export const load: PageServerLoad = async({ fetch, params, cookies }) => {
 	};
 
     const getChatIdsOfUser = async() => {
-        const response = await fetch('http://localhost:3000/api/chats/get', {
+        const response = await fetch(`http://localhost:${PORT}/api/chats/get`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -9,6 +9,7 @@
 	import HistoryCard from '$lib/components/HistoryCard.svelte';
 	
 	export let data: PageData;
+
 	let loaded = false;
 
 	let element: Element;
@@ -32,9 +33,15 @@
 	let newPrompt = '';
 	let isDisabled = false;
 
+	let hostname: string;
+	let port: string;
+
 
 	onMount(() => {
 		loaded = true
+
+		hostname = window.location.hostname;
+		port = window.location.port;
 
 		chatWindow = document.querySelector('.chat-window')
 	});
@@ -78,7 +85,7 @@
 			} 
 		];
 
-		fetch('http://localhost:3000/api/chat/sent', {
+		fetch(`http://${hostname}:${port}/api/chat/sent`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

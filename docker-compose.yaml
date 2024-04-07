@@ -29,7 +29,8 @@ services:
       - "3000:3000"
     environment:
       - SECRET_KEY=value
-      - HOST_PORT=3000
+      - HOST=0.0.0.0
+      - PORT=3000
       - BACKEND_URL=http://server-go:8080
       - ORIGIN=http://localhost:3000
     networks:
