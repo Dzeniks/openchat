@@ -86,5 +86,6 @@ export async function auth(accessToken: string): Promise<boolean> {
             Authorization: `${accessToken}`
         }
     });
+    console.log(response);
     return response.ok;
 }
