@@ -23,6 +23,7 @@ export const actions = {
                 if ('accessToken' in data && 'refreshToken' in data){
                     cookies.set('accessToken', data.accessToken, {
                         httpOnly: true,
+					    secure: false,
                         maxAge: accessTokenMaxAge,
                         path: '/',
                     });
@@ -31,6 +32,7 @@ export const actions = {
             
                     cookies.set('refreshToken', data.refreshToken, {
                         httpOnly: true,
+    					secure: false,
                         maxAge: refreshTokenMaxAge,
                         path: '/',
                     });
@@ -55,11 +57,13 @@ export const actions = {
                 if ('accessToken' in data && 'refreshToken' in data){
                     cookies.set('accessToken', data.accessToken, {
                         httpOnly: true,
+                        secure: false,
                         maxAge: accessTokenMaxAge,
                         path: '/',
                     });
                     cookies.set('refreshToken', data.refreshToken, {
                         httpOnly: true,
+                        secure: false,
                         maxAge: refreshTokenMaxAge,
                         path: '/',
                     });

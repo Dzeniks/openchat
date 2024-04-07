@@ -3,6 +3,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
+	console.log('create chat');
 	try {
     const accessToken = cookies.get('accessToken');
     if (!accessToken) {
@@ -20,6 +21,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			return json({ error: response.statusText});
 		}
 		const result = await response.json();
+		console.log(result);
 		return json(result);
 	} catch (error) {
 		console.error(error);

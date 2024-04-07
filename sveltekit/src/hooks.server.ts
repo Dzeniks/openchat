@@ -9,16 +9,11 @@ const authorizedURLs = ['/chat/'];
 export const handle: Handle = async ({ event, resolve }) => {
     const { pathname } = event.url;
     const accessToken = event.cookies.get('accessToken');
-    const refreshToken = event.cookies.get('refreshToken');
     let hasPrivilege = false;
 
     // Check if in patname is some part of authorizedURL
     if (pathname.includes('/chat')) {
         if (accessToken){
-            hasPrivilege = await auth(accessToken);
-        }
-        if (accessToken && refreshToken) {
-            // const data : AuthResponse | AuthErrorResponse | undefined = await refresh(refreshToken)
             hasPrivilege = await auth(accessToken);
         }
         if (!hasPrivilege) {

@@ -4,12 +4,21 @@ import type { Chat } from '$lib/types';
 
 export const load: PageServerLoad = async({ fetch, params, cookies }) => {
 
+    const accessToken = cookies.get('accessToken');
+    if (accessToken === undefined || accessToken === null) {
+        return {
+            status: 302,
+            redirect: '/login'
+        };
+    }
+
     const createChat = async() => {
+
         const response = await fetch('http://localhost:3000/api/chat/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': cookies.get('accessToken') as string
+                'Authorization': accessToken
             }})
             if (response.ok) {
             const data = await response.json();
@@ -22,7 +31,7 @@ export const load: PageServerLoad = async({ fetch, params, cookies }) => {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': cookies.get('accessToken') as string
+				'Authorization': accessToken
 			},
 			body: JSON.stringify({ chat_id: id })
 		})
@@ -39,7 +48,7 @@ export const load: PageServerLoad = async({ fetch, params, cookies }) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': cookies.get('accessToken') as string
+                'Authorization': accessToken
             }
         })
         if (response.ok) {
