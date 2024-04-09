@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+
+  python-ai:
+    build: ./
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=value
+      - PRODUCTION=true
+      - MODEL_NAME=kuttersn/gpt2_chatbot
+    networks:
+      - openchat-network
+
+  mongo-db:
+    build: ../mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - openchat-network
+
+  server-go:
+    build: ../server-go
+    ports:
+      - "8080:8080"
+    environment:
+      - SECRET_KEY=value
+      - PRODUCTION=false
+      - MONGO_CONNECTION_STRING=mongodb://mongo-db:27017/openchat
+      - MONGO_DB_NAME=openchat
+      - AI_URL=http://python-ai:8000/runsync
+      - AI_AUTH_KEY=secret
+
+    networks:
+      - openchat-network
+
+  sveltekit:
+    build: ../sveltekit
+    ports:
+      - "3000:3000"
+    environment:
+      - SECRET_KEY=value
+      - HOST=0.0.0.0
+      - PORT=3000
+      - BACKEND_URL=http://server-go:8080
+      - ORIGIN=http://localhost:3000
+    networks:
+      - openchat-network
+
+networks:
+  openchat-network:
