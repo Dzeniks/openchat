@@ -1,26 +1,21 @@
-import os
+from settings import DEVICE, MODEL_NAME
 
-import dotenv
 import runpod
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from utils import get_model_params, create_prompt, tokenize_prompt
 
-dotenv.load_dotenv()
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_name = os.getenv("MODEL_NAME")
-
-if model_name is None:
+if MODEL_NAME is None:
     raise Exception("MODEL_NAME environment variable is not set")
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16,
-                                             device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, cache_dir=".cache")
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.float16,
+                                             device_map="auto", cache_dir=".cache")
 
 
-def run_model(job):
+def run_model(job: dict):
     prompt = create_prompt(job["input"]["prompts"])
     inputs = tokenize_prompt(tokenizer, prompt, DEVICE)
     max_new_tokens, repetition_penalty = get_model_params(job)

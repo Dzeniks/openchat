@@ -11,7 +11,6 @@ COPY .cache .cache
 COPY test_input.json test_input.json
 COPY .env .env
 
-
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 

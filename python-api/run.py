@@ -1,19 +1,10 @@
-import os
 
-import dotenv
 import runpod
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from utils import get_model_params, create_prompt, tokenize_prompt
-
-dotenv.load_dotenv()
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_name = os.getenv("MODEL_NAME")
-
-if model_name is None:
-    raise Exception("MODEL_NAME environment variable is not set")
+from settings import DEVICE, MODEL_NAME
 
 nf4_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -22,8 +13,8 @@ nf4_config = BitsAndBytesConfig(
     bnb_4bit_quant_type="nf4"
 )
 
-tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=".cache")
-model = AutoModelForCausalLM.from_pretrained(model_name,
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, cache_dir=".cache")
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME,
                                              torch_dtype=torch.float16,
                                              quantization_config=nf4_config,
                                              device_map="auto", cache_dir=".cache")
