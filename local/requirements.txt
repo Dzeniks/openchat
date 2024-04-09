@@ -17,7 +17,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
-cryptography==42.0.3
+cryptography==42.0.4
 dnspython==2.6.1
 email-validator==2.1.0.post1
 fastapi==0.109.2
@@ -51,7 +51,7 @@ nvidia-cusparse-cu12==12.1.0.106
 nvidia-nccl-cu12==2.19.3
 nvidia-nvjitlink-cu12==12.3.101
 nvidia-nvtx-cu12==12.1.105
-orjson==3.9.14
+orjson==3.9.15
 packaging==23.2
 paramiko==3.4.0
 pfzy==0.3.4
