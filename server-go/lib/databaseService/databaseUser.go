@@ -59,6 +59,16 @@ func UpdateLoginDate(user *User, database *mongo.Database) error {
 	return nil
 }
 
+func SetUserActivity(user *User, database *mongo.Database) error {
+	filter := bson.M{"_id": user.UserID}
+	update := bson.M{"$set": bson.M{"Active": user.Active}}
+	_, err := database.Collection("users").UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetAllChats(UserID string, database *mongo.Database) (*[]Chat, error) {
 	filter := bson.M{"owner_id": UserID}
 	ctx := context.Background()

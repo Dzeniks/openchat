@@ -79,6 +79,25 @@ export async function refresh(refreshToken: string) {
     }
 }
 
+export async function activate(refreshToken: string) {
+    try {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/auth/activate`, {
+            method: 'POST',
+            headers: {
+                RefreshToken: `${refreshToken}`
+            }
+        });
+        if (response.ok) {
+            const json = await response.json();
+            return json as AuthResponse;
+        } else {
+            return {status: response.status, error: response.statusText, message: "Failed to activate"} as AuthErrorResponse;
+        }
+    } catch (error) {
+        return {error: error, message: "Failed to activate"} as AuthErrorResponse;
+    }
+}
+
 export async function auth(accessToken: string): Promise<boolean> {
     const response = await fetch(`${process.env.BACKEND_URL}/api/auth/`, {
         method: 'POST',
