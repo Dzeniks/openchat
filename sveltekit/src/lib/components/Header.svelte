@@ -39,7 +39,6 @@
     <ul class="list">
         <li><a href="/about">About</a></li>
         <li><a on:click={deleteAllCookies} href="/">logout</a></li>
-        <li><a href="/login">Login/Register</a></li>
     </ul>
 
 </nav>
