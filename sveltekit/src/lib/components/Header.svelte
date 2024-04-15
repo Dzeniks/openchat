@@ -1,11 +1,47 @@
+<script lang="ts">
+    import { onMount } from 'svelte';
+  
+    let hasToken = false;
+
+    onMount(() => {
+        console.log('Header mounted');
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        console.log('accessToken:', accessToken);
+        console.log('refreshToken:', refreshToken);
+    });
+
+    // Remove all cookies
+    function deleteAllCookies() {
+        fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token: localStorage.getItem('token') })
+        }).then(res => {
+            if (res.ok) {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/';
+            }
+        }).catch(err => {
+            console.error('Error:', err);
+            alert('Error logging out');
+        });
+    }
+   
+
+</script>
+
 <nav>
     <a href="/">Home</a>
     <ul class="list">
         <li><a href="/about">About</a></li>
-        <!-- <li><a href="/projects">Projects</a></li>
-        <li><a href="/contacts">Contact</a></li>-->
+        <li><a on:click={deleteAllCookies} href="/">logout</a></li>
+        <li><a href="/login">Login/Register</a></li>
     </ul>
-    <!-- <button class="menu">Menu</button> -->
+
 </nav>
 
 <style>
@@ -54,12 +90,3 @@
     }
 
 </style>
-
-
-<script>
-    let isListVisible = false;
-
-    function toggleList() {
-        isListVisible = !isListVisible;
-    }
-</script>
