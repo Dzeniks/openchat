@@ -10,7 +10,7 @@ import (
 	"server-go/lib/authorization"
 	"server-go/lib/databaseService"
 	"server-go/lib/dotEnv"
-	"server-go/lib/ginUtils"
+	"server-go/lib/jwtService"
 	"strings"
 	"time"
 )
@@ -68,9 +68,21 @@ func SentPrompt(r *gin.Context) {
 	log.Print("ChatID: ", payloadUser.ChatID)
 
 	accessTokenString := r.GetHeader("Authorization")
-	claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
+	accessToken, err := jwtService.ParseToken(accessTokenString)
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cannot parse token"})
+	}
+	claims, err := jwtService.ExtractClaims(accessToken)
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cannot extract claims"})
+	}
 
-	database := ginUtils.GetDatabase(r)
+	clientMongo, err := databaseService.GetClient()
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cant connect to client"})
+	}
+	database := databaseService.GetDatabase(clientMongo)
+
 	var message = databaseService.Message{
 		SenderID: claims.UserID,
 		Content:  payloadUser.Prompt,
@@ -86,7 +98,7 @@ func SentPrompt(r *gin.Context) {
 		return
 	}
 
-	var aiRequest AIRequest = AIRequest{
+	var aiRequest = AIRequest{
 		Input: struct {
 			Prompts []databaseService.Message `json:"prompts"`
 		}{
@@ -143,8 +155,6 @@ func SentPrompt(r *gin.Context) {
 		Content:  response.Output,
 		SentAt:   time.Now(),
 	}
-
-	go addMessageToChatParallel(message, payloadUser.ChatID, database)
 	go addMessageToChatParallel(AImessage, payloadUser.ChatID, database)
 
 	r.JSON(200, gin.H{
@@ -155,8 +165,19 @@ func SentPrompt(r *gin.Context) {
 
 func GetChatIdsOfUser(r *gin.Context) {
 	accessTokenString := r.GetHeader("Authorization")
-	claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
-	database := ginUtils.GetDatabase(r)
+	accessToken, err := jwtService.ParseToken(accessTokenString)
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cannot parse token"})
+	}
+	claims, err := jwtService.ExtractClaims(accessToken)
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cannot extract claims"})
+	}
+	client, err := databaseService.GetClient()
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cant connect to client"})
+	}
+	database := databaseService.GetDatabase(client)
 	// Get All chat
 	chats, err := databaseService.GetAllChats(claims.UserID, database)
 	if err != nil {
@@ -192,9 +213,14 @@ func GetChat(r *gin.Context) {
 	//accessTokenString := r.GetHeader("Authorization")
 	//claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
 	//userID := claims.UserID
-	database := ginUtils.GetDatabase(r)
+	client, err := databaseService.GetClient()
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cant connect to client"})
+	}
+	database := databaseService.GetDatabase(client)
+
 	var payload GetChatRequest
-	err := json.NewDecoder(r.Request.Body).Decode(&payload)
+	err = json.NewDecoder(r.Request.Body).Decode(&payload)
 	if err != nil {
 		r.JSON(400, gin.H{"error": "Invalid request body"})
 		return
@@ -236,8 +262,20 @@ func SentPromptTest(r *gin.Context) {
 
 func CreateChat(r *gin.Context) {
 	accessTokenString := r.GetHeader("Authorization")
-	claims := ginUtils.GetClaimsFromToken(r, accessTokenString)
-	database := ginUtils.GetDatabase(r)
+	accessToken, err := jwtService.ParseToken(accessTokenString)
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cannot parse token"})
+	}
+	claims, err := jwtService.ExtractClaims(accessToken)
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cannot extract claims"})
+	}
+
+	client, err := databaseService.GetClient()
+	if err != nil {
+		r.JSON(500, gin.H{"error": "Cant connect to client"})
+	}
+	database := databaseService.GetDatabase(client)
 	// Get All chat
 	chats, err := databaseService.GetAllChats(claims.UserID, database)
 	if err != nil {

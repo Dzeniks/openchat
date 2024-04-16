@@ -62,8 +62,8 @@ export const load: PageServerLoad = async({ fetch, params, cookies }) => {
     }
 
     if (params.slug === '' || params.slug === undefined || params.slug === null) {
-        const ok = await createChat();
-        return ok;
+        const response = await createChat();
+        return response;
     }
     else {
         const DATA = await getChatByID(params.slug as string);

@@ -19,6 +19,7 @@ services:
       - MONGO_DB_NAME=openchat
       - AI_URL=http://localhost:8000/runsync
       - AI_AUTH_KEY=secret
+      - GIN_MODE=release
 
     networks:
       - openchat-network

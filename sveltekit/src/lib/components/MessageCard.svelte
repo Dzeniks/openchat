@@ -11,13 +11,7 @@
     </span>
 </div>
 
-
 <style>
-    
-    span {
-        text-align: right;
-    }
-
     .prompt {
         padding: 1rem;
         width: 90%;
@@ -25,6 +19,10 @@
         border-radius: 1rem;
     }
 
+    
+    span {
+        text-align: right;
+    }
     
     h3 {
         text-align: left;

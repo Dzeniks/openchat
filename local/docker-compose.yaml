@@ -7,8 +7,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - SECRET_KEY=value
-      - PRODUCTION=true
       - MODEL_NAME=kuttersn/gpt2_chatbot
     networks:
       - openchat-network
@@ -26,7 +24,6 @@ services:
       - "8080:8080"
     environment:
       - SECRET_KEY=value
-      - PRODUCTION=false
       - MONGO_CONNECTION_STRING=mongodb://mongo-db:27017/openchat
       - MONGO_DB_NAME=openchat
       - AI_URL=http://python-ai:8000/runsync

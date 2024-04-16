@@ -21,7 +21,6 @@ func createLogFile(filename string) (*os.File, error) {
 }
 
 func main() {
-	r := gin.Default()
 	logFile, err := createLogFile("log.txt")
 	if err != nil {
 		log.Fatal("Unable to create log file:", err)
@@ -34,7 +33,6 @@ func main() {
 	}(logFile)
 	log.Printf("Log file created: %s", logFile.Name())
 
-	//goland:noinspection Annotator
 	err = env.LoadDotEnv()
 	if err != nil {
 		log.Fatal(err)
@@ -45,6 +43,7 @@ func main() {
 	log.Println(env.DotEnv.SecretKey)
 	log.Println(secretKey.GetSecretKey())
 
+	r := gin.Default()
 	routes.InitApiRouter(r)
 	port := env.DotEnv.HostPort
 	if port == "" {
@@ -52,7 +51,7 @@ func main() {
 	}
 
 	r.ForwardedByClientIP = true
-	err = r.SetTrustedProxies([]string{"127.0.0.1", "192.168.1.2", "10.0.0.0/8"})
+	err = r.SetTrustedProxies([]string{"127.0.0.1", "10.0.0.0/8"})
 	if err != nil {
 		return
 	}
