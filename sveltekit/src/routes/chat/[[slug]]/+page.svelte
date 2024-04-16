@@ -7,6 +7,7 @@
 	import { error } from '@sveltejs/kit';
 	import { afterUpdate, tick } from 'svelte';
 	import HistoryCard from '$lib/components/HistoryCard.svelte';
+    import { marked } from 'marked';
 	
 	export let data: PageData;
 
@@ -65,6 +66,7 @@
 	}
 
 	const postPrompt = () => {
+		newPrompt = newPrompt.trim().replace(/\n/g, "<br>").replace(/\t/g, "&emsp;");
 		isDisabled = true;
 		DATA.Messages = [
 			...DATA.Messages,
@@ -92,12 +94,12 @@
 				'Authorization': localStorage.getItem('accessToken') as string
 			},
 			body: JSON.stringify({chat_id: DATA.ChatID , prompt: newPrompt })
-		}).then(response => response.json()).then(data => {
+		}).then(response => response.json()).then(async data => {
 			isDisabled = false;
 			if (data.output != undefined) {
 				DATA.Messages[DATA.Messages.length - 1] = {
 					SenderID: "AI",
-					Content: data.output,
+					Content: await marked(data.output),
 					SentAt: new Date()
 				};
 			} else if (data.error) {
@@ -123,9 +125,8 @@
 	</aside>
 	<section>
 	{#key loaded }
-
 		<h1 in:fade="{{ delay:100 ,duration: 2000 }}" style="color: var(--primary)">OpenChat</h1>
-		<div bind:this={element} class="chat-window" style="overflow-y: scroll;" in:fade="{{ delay:100 ,duration: 2000 }}">
+		<div bind:this={element} id="chat-window" style="overflow-y: scroll;" in:fade="{{ delay:100 ,duration: 2000 }}">
 			{#each DATA.Messages as item}
 				<MessageCard 
 					owner={item.SenderID}
@@ -133,9 +134,9 @@
 				/>
 			{/each}
 		</div>
-		<div class="input-div">
+		<div id="input-div">
 			<textarea id="prompt-input" placeholder="Write me prompt :)" bind:value={newPrompt} />
-			<button on:click={postPrompt} disabled={isDisabled}>Post Data</button>
+			<button id="send-btn" on:click={postPrompt} disabled={isDisabled}>Send prompt</button>
 		</div>
 	{/key}
 
@@ -153,9 +154,28 @@
         resize: vertical;
     }
 
-    .input-div {
+	#prompt-input {
+		height: 50%;
+		width: 100%;
+	}
+
+    #input-div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
         padding: 2rem;
+		width: 80%;
+		height: 15vh;
     }
+
+	button {
+		background-color: var(--primary);
+		padding: 16px 20px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		width: 20%;
+	}
 
     section {
         padding-top: 8vh;
@@ -182,6 +202,8 @@
         text-align: center;
         font-size: 3rem;
         font-weight: 900;
+		padding: 0;
+		margin: 1rem;
     }
 
     div {
@@ -197,11 +219,10 @@
             align-items: center;
 
             justify-content: space-between;
-            gap: 50px;
         }
     }
 
-    .chat-window {
+    #chat-window {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -254,6 +275,31 @@
 	@media (max-width: 768px) {
         aside {
 			display: none;
+		}
+
+		section {
+			padding-top: 15vh;
+			height: 85vh;
+			width: 100vw;
+		}
+
+		#input-div {
+			width: 90%;
+			height: 20vh;
+			padding: 1rem;
+
+			justify-content: space-between;
+			gap: 0px;
+		}
+
+		#prompt-input {
+			height: 50%;
+			width: 100%;
+		}
+
+		button {
+			width: 30%;
+			padding: 0.5rem;
 		}
     }
 
