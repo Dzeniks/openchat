@@ -100,12 +100,11 @@
 					Content: data.output,
 					SentAt: new Date()
 				};
-			} else {
-				if (data.error) {
+			} else if (data.error) {
 					alert(data.error);
 					DATA.Messages = DATA.Messages.slice(0, DATA.Messages.length - 2);
-				}
 			}
+			newPrompt = '';
 		}).catch(error => {
 			DATA.Messages = DATA.Messages.slice(0, DATA.Messages.length - 2);
 			isDisabled = false;

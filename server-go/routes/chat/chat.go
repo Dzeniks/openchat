@@ -149,6 +149,7 @@ func SentPrompt(r *gin.Context) {
 		r.JSON(500, gin.H{"error": "Error decoding response from AI"})
 		return
 	}
+	go addMessageToChatParallel(message, chatID, database)
 
 	var AImessage = databaseService.Message{
 		SenderID: "AI",

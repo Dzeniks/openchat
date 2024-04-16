@@ -7,9 +7,16 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - MODEL_NAME=kuttersn/gpt2_chatbot
+      - MODEL_NAME=google/gemma-7b-it
     networks:
       - openchat-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
 
   mongo-db:
     build: ../mongo

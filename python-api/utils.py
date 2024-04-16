@@ -1,18 +1,21 @@
-from settings import PROMPT_TEMPLATE_LAMMA, MESSAGE_SYMBOL, MAX_NEW_TOKENS, REPEAT_PENALTY
+from typing import List, Dict, Any
+
+from settings import MAX_NEW_TOKENS, REPEAT_PENALTY
 
 
-def create_prompt(prompts: list[dict]) -> str:
-    full_prompt = ""
+def create_prompt(prompts: list[dict]) -> list[dict[str, str]]:
+    chat = []
     for prompt in prompts:
         if prompt.get("SenderID", None) == "AI":
-            full_prompt += prompt["Content"] + "</s>"
+            chat.append({"role": "model", "content": prompt["Content"]})
         else:
-            full_prompt += PROMPT_TEMPLATE_LAMMA.replace(MESSAGE_SYMBOL, prompt["Content"])
-    return full_prompt
+            chat.append({"role": "user", "content": prompt["Content"]})
+    return chat
 
 
-def tokenize_prompt(tokenizer, prompt: str, device="cpu"):
-    return tokenizer.encode(prompt, return_tensors="pt").to(device)
+def tokenize_prompt(tokenizer, chat: list[dict[str, str]], device="cpu"):
+    formated_chat = tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
+    return tokenizer.encode(formated_chat, return_tensors="pt").to(device)
 
 
 def get_model_params(job):

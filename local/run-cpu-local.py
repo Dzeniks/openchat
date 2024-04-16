@@ -1,15 +1,15 @@
-from fastapi import FastAPI, Body
-from pydantic import BaseModel
-
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+from fastapi import FastAPI
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from settings import MODEL_NAME, DEVICE
 from utils import get_model_params, create_prompt, tokenize_prompt
+
 app = FastAPI()
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, cache_dir=".cache")
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", cache_dir=".cache")
+
 
 @app.post("/runsync")
 async def run_model(job: dict):
@@ -28,4 +28,5 @@ async def run_model(job: dict):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

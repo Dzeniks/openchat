@@ -18,7 +18,11 @@
 
 		if (error && message) {
 			alert(error + ': ' + message);
-		}
+		} else if (error) {
+            alert(error);
+        } else if (message) {
+            alert(message);
+        }
 	});
 
 
@@ -36,10 +40,10 @@
                         <input type="text" placeholder="email" name="email" bind:value={email}>
                         <input type="password" placeholder="Password" name="password" bind:value={password}>
                         <input type="password" placeholder="Confirm Password" bind:value={rePassword}>
-                        <span> Password should be 8 characters long and contain 1 Capital character and 1 number.</span>
+                        <span style="color: var(--primary);"> Password should be 8 characters long and contain 1 Capital character and 1 number.</span>
                         <button type="submit">Register</button>
                     </form>
-                    <button on:click={change}>Already registered ?</button>
+                    <button on:click={change}>Already registered?</button>
                 </div>
             {:else}
                 <div transition:slide>

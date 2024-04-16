@@ -1,0 +1,21 @@
+{
+    "input" : {
+        "prompts" : [
+            {
+                "SenderID": "123",
+                "Content": "Who is president of USA?",
+                "SentAt": "2016-12-12T12:12:12Z"
+            },
+            {
+                "SenderID": "AI",
+                "Content": "President of USA is Joe Biden.",
+                "SentAt": "2016-12-12T12:12:12Z"
+            },
+            {
+                "SenderID": "123",
+                "Content": "Tell me more about him please.",
+                "SentAt": "2016-12-12T12:12:12Z"
+            }
+        ]
+    }
+}

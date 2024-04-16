@@ -54,5 +54,9 @@ docker run -d -p 27017:27017 mongo
 ![img.png](img.png)
 ## About page
 ![img_1.png](img_1.png)
-## Chat page
+## Login page
 ![img_2.png](img_2.png)
+## Register page
+![img_3.png](img_3.png)
+## Chat page
+![img_4.png](img_4.png)

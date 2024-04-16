@@ -72,6 +72,6 @@ export const actions = {
                     throw redirect(301, `/login?error=${data.error}&message=${data.message}`)
                 }
             }
-            throw redirect(302, '/login')
+            throw redirect(302, '/login?message=Activation email sent. Please check your email.')
         },
 } satisfies Actions;
