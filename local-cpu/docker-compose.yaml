@@ -8,13 +8,6 @@ services:
       - "8000:8000"
     networks:
       - openchat-network
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
 
   mongo-db:
     build: ../mongo

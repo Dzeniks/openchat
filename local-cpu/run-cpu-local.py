@@ -7,6 +7,8 @@ from utils import get_model_params, create_prompt, tokenize_prompt
 
 app = FastAPI()
 
+print(f"DEVICE: {DEVICE}")
+print(f"MODEL_NAME: {MODEL_NAME}")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, cache_dir=".cache")
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", cache_dir=".cache")
 
