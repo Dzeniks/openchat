@@ -177,6 +177,10 @@
 		width: 20%;
 	}
 
+	button:hover {
+		background-color: var(--tertiary);
+	}
+
     section {
         padding-top: 8vh;
         display: flex;

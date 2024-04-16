@@ -1,6 +1,7 @@
 <script lang="ts">
     import { fade } from "svelte/transition";
 	import { onMount } from "svelte";
+    import { marked } from "marked";
 
     export var owner: string;
     export var prompt: string; // As Markdown   
@@ -9,7 +10,7 @@
 <div class="prompt" transition:fade="{{ duration: 500 }}">
     <h3>{owner === "AI" ? owner : "User"}</h3>
     <span class="message-field">
-        {@html prompt}
+        {@html marked(prompt)}
     </span>
 </div>
 
