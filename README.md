@@ -59,4 +59,4 @@ docker run -d -p 27017:27017 mongo
 ## Register page
 ![img_3.png](img_3.png)
 ## Chat page
-![img_4.png](img_4.png)
+![alt text](image.png)
