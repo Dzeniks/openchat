@@ -111,7 +111,13 @@ func register(c *gin.Context) {
 	err = emailService.SendEmail([]string{user.Email}, []byte(message))
 	if err != nil {
 		log.Error(err)
-		c.JSON(500, gin.H{"error": "Email sending error"})
+		c.JSON(500, gin.H{"error": "Email sending error, register again"})
+		// Delete user from database
+		err = databaseService.DeleteUser(user, database)
+		if err != nil {
+			log.Error("Database error")
+			return
+		}
 		return
 	}
 

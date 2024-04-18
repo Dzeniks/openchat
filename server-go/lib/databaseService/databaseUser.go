@@ -59,6 +59,15 @@ func UpdateLoginDate(user *User, database *mongo.Database) error {
 	return nil
 }
 
+func DeleteUser(user *User, database *mongo.Database) error {
+	filter := bson.M{"_id": user.UserID}
+	_, err := database.Collection("users").DeleteOne(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func SetUserActivity(user *User, database *mongo.Database) error {
 	filter := bson.M{"_id": user.UserID}
 	update := bson.M{"$set": bson.M{"Active": user.Active}}
