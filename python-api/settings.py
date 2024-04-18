@@ -11,5 +11,5 @@ MODEL_NAME = os.getenv("MODEL_NAME")
 if MODEL_NAME is None:
     raise Exception("MODEL_NAME environment variable is not set")
 
-MAX_NEW_TOKENS = 4000
+MAX_NEW_TOKENS = 2000
 REPEAT_PENALTY = 1.0
