@@ -70,7 +70,7 @@ func DeleteUser(user *User, database *mongo.Database) error {
 
 func SetUserActivity(user *User, database *mongo.Database) error {
 	filter := bson.M{"_id": user.UserID}
-	update := bson.M{"$set": bson.M{"Active": user.Active}}
+	update := bson.M{"$set": bson.M{"active": user.Active}}
 	_, err := database.Collection("users").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return err
